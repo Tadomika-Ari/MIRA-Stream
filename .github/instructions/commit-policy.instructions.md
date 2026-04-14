@@ -1,8 +1,12 @@
+---
+description: "Use this policy when generating git commit messages in this repository."
+applyTo: "**"
+---
+
 # Commit Message Policy
 
-Generate commit messages following this format:
+Generate commit messages with this format:
 
-## Structure
 [PREFIX] Short description (max 72 chars)
 
 Optional body with more details.
