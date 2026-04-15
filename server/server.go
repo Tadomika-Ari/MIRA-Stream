@@ -8,8 +8,14 @@ import (
 )
 
 type conf struct {
-	VideoF   string `toml:"video_f"`
-	WebtoonF string `toml:"webtoon_f"`
+	Folder struct {
+		VideoF   string `toml:"video_f"`
+		WebtoonF string `toml:"webtoon_f"`
+	} `toml:"folder"`
+	Server struct {
+		Port int `toml:"port"`
+		Host string `toml:"host"`
+	} `toml:"server"`
 }
 
 func LoadConf(path string) (conf, error) {
@@ -22,7 +28,7 @@ func ChangeVFolder(cfg *conf) {
 	var ChangePath string
 	fmt.Println("Quelle est le nouveau path ?")
 	fmt.Scan(&ChangePath)
-	cfg.VideoF = ChangePath
+	cfg.Folder.VideoF = ChangePath
 }
 
 func ServerStart() conf {
