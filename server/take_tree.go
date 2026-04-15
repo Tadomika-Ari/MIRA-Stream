@@ -5,6 +5,6 @@ import (
 	"os"
 )
 
-func TakeFolder() {
-	fmt.Println(os.ReadDir("."))
+func TakeFolder(cfg *conf) {
+	fmt.Println(os.ReadDir(cfg.Folder.VideoF))
 }

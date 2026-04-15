@@ -6,14 +6,14 @@ import (
 	"server/server"
 )
 
-
 func main() {
 	fmt.Println("Démarage du serveur")
 	cfg := server.ServerStart()
 	fmt.Println("Terminal du serveur :")
 	for {
 		var rep string
-	 	_, err := fmt.Scan(&rep)
+		fmt.Print("$> ")
+		_, err := fmt.Scan(&rep)
 		if err != nil {
 			log.Fatalln("error input")
 		}
@@ -23,12 +23,16 @@ func main() {
 		if rep == "-vfolder" {
 			server.ChangeVFolder(&cfg)
 			fmt.Printf("After change : %+v\n", cfg)
+			continue
 		}
 		if rep == "-list" {
-			server.TakeFolder()
+			server.TakeFolder(&cfg)
+			continue
 		}
 		if rep == "-config" {
 			fmt.Printf("Config actuel : %+v\n", cfg)
+			continue
 		}
+		fmt.Println("Command not found.")
 	}
 }

@@ -3,5 +3,5 @@ port = 8000
 host = "localhost"
 
 [folder]
-video_f = "test"
+video_f = "folder_test"
 webtoon_f = "test"
