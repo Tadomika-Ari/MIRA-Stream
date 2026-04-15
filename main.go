@@ -17,14 +17,14 @@ func main() {
 		if err != nil {
 			log.Fatalln("error input")
 		}
-		if rep == "--exit" {
+		if rep == "-exit" {
 			break
 		}
-		if rep == "--vfolder" {
+		if rep == "-vfolder" {
 			server.ChangeVFolder(&cfg)
 			fmt.Printf("After change : %+v\n", cfg)
 		}
-		if rep == "--config" {
+		if rep == "-config" {
 			fmt.Printf("Config actuel : %+v\n", cfg)
 		}
 	}
