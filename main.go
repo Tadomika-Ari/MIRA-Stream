@@ -24,6 +24,9 @@ func main() {
 			server.ChangeVFolder(&cfg)
 			fmt.Printf("After change : %+v\n", cfg)
 		}
+		if rep == "-list" {
+			server.TakeFolder()
+		}
 		if rep == "-config" {
 			fmt.Printf("Config actuel : %+v\n", cfg)
 		}
