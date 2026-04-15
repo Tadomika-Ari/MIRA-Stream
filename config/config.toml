@@ -1,0 +1,7 @@
+[server]
+port = 8000
+host = "localhost"
+
+[folder]
+video_f = "test"
+webtoon_f = "test"
