@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("Terminal du serveur :")
 	for {
 		var rep string
-		fmt.Print("$> ")
+		fmt.Print("$MIRA-Stream> ")
 		_, err := fmt.Scan(&rep)
 		if err != nil {
 			log.Fatalln("error input")
@@ -30,7 +30,7 @@ func main() {
 			continue
 		}
 		if rep == "-config" {
-			fmt.Printf("Config actuel : %+v\n", cfg)
+			server.ViewConfig(cfg)
 			continue
 		}
 		fmt.Println("Command not found.")
