@@ -32,3 +32,29 @@ go.work.sum
 # .vscode/
 
 folder_test
+
+# react folder
+# Logs
+web-client/logs
+web-client/*.log
+web-client/npm-debug.log*
+web-client/yarn-debug.log*
+web-client/yarn-error.log*
+web-client/pnpm-debug.log*
+web-client/lerna-debug.log*
+
+web-client/node_modules
+web-client/dist
+web-client/dist-ssr
+web-client/*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
