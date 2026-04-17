@@ -33,6 +33,11 @@ func main() {
 			server.ViewConfig(cfg)
 			continue
 		}
+		if rep == "-start" && cfg.StartStatut == 0 {
+			go server.SimpleHost()
+			cfg.StartStatut = 1
+			continue
+		}
 		fmt.Println("Command not found.")
 	}
 }
