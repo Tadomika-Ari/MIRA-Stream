@@ -18,12 +18,14 @@ type conf struct {
 		Host string `toml:"host"`
 	} `toml:"server"`
 	Path string
+	StartStatut int
 }
 
 func LoadConf(path string) (conf, error) {
 	var cfg conf
 	_, err := toml.DecodeFile(path, &cfg)
 	cfg.Path, err = os.Getwd()
+	cfg.StartStatut = 0
 	return cfg, err
 }
 
