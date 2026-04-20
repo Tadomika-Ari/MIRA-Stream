@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Démarage du serveur")
+	fmt.Println("Démarage du serveur...")
 	cfg := server.ServerStart()
 	fmt.Println("Terminal du serveur :")
 	for {

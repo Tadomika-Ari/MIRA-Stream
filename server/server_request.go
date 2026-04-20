@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type Item struct {
@@ -11,9 +12,33 @@ type Item struct {
 	Name string `json:"name"`
 }
 
+type Folder struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 var items = []Item{
 	{ID: 1, Name: "Item A"},
 	{ID: 2, Name: "Item B"},
+}
+
+func SearchInFolder() ([]Folder) {
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		return nil
+	}
+	folders := make([]Folder, 0, len(entries))
+	for _, entry := range entries {
+		entryType := "file"
+		if entry.IsDir() {
+			entryType = "dir"
+		}
+		folders = append(folders, Folder{
+			Name: entry.Name(),
+			Type: entryType,
+		})
+	}
+	return folders
 }
 
 func itemsHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +56,7 @@ func itemsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		// On renvoie la liste en JSON
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(items); err != nil {
+		if err := json.NewEncoder(w).Encode(SearchInFolder()); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintln(w, "Erreur d'encodage JSON")
 		}
@@ -48,5 +73,4 @@ func SimpleHost(cfg conf) {
 	if err != nil {
 		fmt.Println("error server")
 	}
-	fmt.Println("END FUNCTION")
 }
