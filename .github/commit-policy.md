@@ -14,15 +14,10 @@ Optional body with more details.
 ## Prefixes
 - [+] New feature or file added
 - [-] File or feature removed
-- [~] Modification or update
-- [!] Bug fix
-- [*] Refactor or cleanup
+- [~] Modification or update or other
 - [?] Tests
-- [#] Configuration or build
 
 ## Examples
 [+] Add user authentication module
 [-] Remove deprecated payment API
 [~] Update README with new install steps
-[!] Fix crash on null pointer in parser
-[*] Refactor database connection pool
