@@ -90,7 +90,7 @@ export default function LoginPage() {
         </nav>
       </header>
       <section className="verticale-lr mx-4">
-        <img src={homelogo} alt="Logo accueil" className="h-15 w-15 object-contain mx-2" />
+        <img src={homelogo} alt="Logo accueil" onClick={() => navigate('/')} className="h-15 w-15 object-contain mx-2" />
         <img src={cameralogo} alt="Logo Film" className="h-15 w-15 object-contain mx-2"/>
       </section>
       <main className="">
