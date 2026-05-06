@@ -14,14 +14,16 @@ type conf struct {
 		WebtoonF string `toml:"webtoon_f"`
 	} `toml:"folder"`
 	Server struct {
-		Port int `toml:"port"`
+		Port int    `toml:"port"`
 		Host string `toml:"host"`
 	} `toml:"server"`
-	Path string
+	Path        string
 	StartStatut int
 }
 
-func LoadConf(path string) (conf, error) {
+type Conf = conf
+
+func LoadConf(path string) (Conf, error) {
 	var cfg conf
 	_, err := toml.DecodeFile(path, &cfg)
 	cfg.Path, err = os.Getwd()
@@ -29,7 +31,7 @@ func LoadConf(path string) (conf, error) {
 	return cfg, err
 }
 
-func ServerStart() conf {
+func ServerStart() Conf {
 	cfg, err := LoadConf("config/config.toml")
 	if err != nil {
 		log.Fatalf("error toml")
