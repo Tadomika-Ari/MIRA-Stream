@@ -1,9 +1,10 @@
+// @ts-nocheck
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
-import App from './App.jsx'
-import Conn from './connection.jsx'
+import App from './App.tsx'
+import Conn from './pages/connection.tsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

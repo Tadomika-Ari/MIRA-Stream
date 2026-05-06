@@ -1,6 +1,9 @@
-import { useEffect, useState, useRef } from 'react'
-import './App.css'
-import { Navigate, useNavigate } from 'react-router-dom'
+// @ts-nocheck
+import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom'
+import homelogo from '../assets/maisonclair.png'
+import cameralogo from '../assets/filmclair.png'
 
 const folderIcon = (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-amber-300">
@@ -15,17 +18,18 @@ const fileIcon = (
   </svg>
 )
 
-function App() {
+export default function LoginPage() {
+
   const [explorerItems, setExplorerItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  
+  const navigate = useNavigate()
 
   const items = [
-    { label: 'Ce connecter' },
-    { label: 'Github' },
+    { label: 'Acceuil', linkp: '/', type: 'internal' },
+    { label: 'Github', linkp: 'https://github.com/Tadomika-Ari/MIRA-Stream', type: 'external' },
   ]
-
-  const sectionRef = useRef(null)
 
   const loadExplorerItems = async () => {
     try {
@@ -50,16 +54,10 @@ function App() {
     loadExplorerItems()
   }, [])
 
-  const handleScroll = () => {
-    sectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   const renderIcon = (type) => (type === 'dir' ? folderIcon : fileIcon)
-
-  const navigate = useNavigate()
-
+  const filename = 'Arifureta.mp4'
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
         <a href="/" className="text-xl font-semibold tracking-wide text-white">
           MIRA Stream
@@ -69,51 +67,36 @@ function App() {
           <ul className="flex items-center gap-5 text-sm">
             {items.map((item) => (
               <li key={item.label}>
-                <button
-                  type="button"
-                  onClick={handleScroll}
-                  className="text-zinc-200 transition hover:text-white"
-                >
-                  {item.label}
-                </button>
+                {item.type === 'external' ? (
+                  <a
+                    href={item.linkp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-zinc-200 transition hover:text-white"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => navigate(item.linkp)}
+                    className="text-zinc-200 transition hover:text-white"
+                  >
+                    {item.label}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
         </nav>
       </header>
-
-      <main>
-        <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-6xl flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-4xl font-bold md:text-5xl">
-            Bienvenue sur Mira Stream
-          </h1>
-
-          <button
-            type="button"
-            onClick={() => navigate('/conn')}
-            className="mt-6 rounded-md border border-zinc-600 bg-zinc-800 px-5 py-3 text-sm transition hover:bg-zinc-700"
-          >
-            Ce connecter au serveur
-          </button>
-        </section>
-
-        <section ref={sectionRef} className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8">
-          <p className="text-center text-zinc-300">
-            Ton header est maintenant rendu par un composant React local, sans librairie externe.
-          </p>
-
-          <div className="mt-6 flex justify-center">
-            <button
-              type="button"
-              onClick={loadExplorerItems}
-              className="rounded-md border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm transition hover:bg-zinc-700"
-            >
-              Tester API
-            </button>
-          </div>
-        </section>
-        <section className="mx-auto w-full max-w-6xl px-4 pb-20">
-          <div className="mx-auto w-full max-w-xl rounded-xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
+      <section className="verticale-lr mx-4">
+        <img src={homelogo} alt="Logo accueil" onClick={() => navigate('/')} className="h-15 w-15 object-contain mx-2" />
+        <img src={cameralogo} alt="Logo Film" className="h-15 w-15 object-contain mx-2"/>
+      </section>
+      <main className="">
+        <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
+          <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
             <p className="mb-3 text-sm font-semibold text-zinc-100">Explorateur</p>
 
             {loading ? (
@@ -135,9 +118,12 @@ function App() {
             )}
           </div>
         </section>
+        <section>
+          <video>
+            <source src={`http://localhost:8000/api/video/${filename}`}/>
+          </video>
+        </section>
       </main>
     </div>
-  )
+  );
 }
-
-export default App

@@ -1,10 +1,12 @@
-package server
+package api
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+
+	srv "server/server"
 )
 
 type Item struct {
@@ -22,7 +24,7 @@ var items = []Item{
 	{ID: 2, Name: "Item B"},
 }
 
-func SearchInFolder() ([]Folder) {
+func SearchInFolder() []Folder {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		return nil
@@ -40,6 +42,7 @@ func SearchInFolder() ([]Folder) {
 	}
 	return folders
 }
+
 
 func itemsHandler(w http.ResponseWriter, r *http.Request) {
 	// Allow the Vite dev server to read API responses from the browser.
@@ -66,11 +69,6 @@ func itemsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SimpleHost(cfg conf) {
+func RequestFolder(cfg srv.Conf) {
 	http.HandleFunc("/", itemsHandler)
-	fmt.Println("API lancer")
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		fmt.Println("error server")
-	}
 }

@@ -1,24 +1,26 @@
-package server
+package cmd
 
 import (
 	"fmt"
 	"os"
+
+	srv "server/server"
 )
 
-func ChangeVFolder(cfg *conf) {
+func ChangeVFolder(cfg *srv.Conf) {
 	var ChangePath string
 	fmt.Println("Quelle est le nouveau path ?")
 	fmt.Scan(&ChangePath)
 	cfg.Folder.VideoF = ChangePath
 }
 
-func TakeFolder(cfg *conf) {
+func TakeFolder(cfg *srv.Conf) {
 	fmt.Printf("Path : %v\n", cfg.Path)
-	folder, _ := os.ReadDir(cfg.Folder.VideoF) 
+	folder, _ := os.ReadDir(cfg.Folder.VideoF)
 	fmt.Printf("%+v\n", folder)
 }
 
-func ViewConfig(cfg conf) {
+func ViewConfig(cfg srv.Conf) {
 	fmt.Println("\t\tCONFIG")
 	fmt.Println("Serveur :")
 	fmt.Printf("	- Port : %v\n", cfg.Server.Port)
