@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState, useRef } from 'react'
-import './App.css'
+import './home.css'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 const folderIcon = (
@@ -113,28 +113,8 @@ function App() {
             </button>
           </div>
         </section>
-        <section className="mx-auto w-full max-w-6xl px-4 pb-20">
-          <div className="mx-auto w-full max-w-xl rounded-xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
-            <p className="mb-3 text-sm font-semibold text-zinc-100">Explorateur</p>
-
-            {loading ? (
-              <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
-            ) : error ? (
-              <p className="py-10 text-center text-sm text-zinc-300">{error}</p>
-            ) : (
-              <ul className="grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
-                {explorerItems.map((item) => (
-                  <li
-                    key={item.name}
-                    className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10"
-                  >
-                    {renderIcon(item.type)}
-                    <span className="mt-2 text-xs">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        <section>
+            
         </section>
       </main>
     </div>
