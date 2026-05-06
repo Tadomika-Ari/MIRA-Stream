@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"server/server"
+	cmd "server/server/terminal_cmd"
+	api "server/server/api"
 )
 
 func main() {
@@ -23,20 +25,20 @@ func main() {
 			break
 		}
 		if rep == "vfolder" {
-			server.ChangeVFolder(&cfg)
+			cmd.ChangeVFolder(&cfg)
 			fmt.Printf("After change : %+v\n", cfg)
 			continue
 		}
 		if rep == "list" {
-			server.TakeFolder(&cfg)
+			cmd.TakeFolder(&cfg)
 			continue
 		}
 		if rep == "config" {
-			server.ViewConfig(cfg)
+			cmd.ViewConfig(cfg)
 			continue
 		}
 		if rep == "start" && cfg.StartStatut == 0 {
-			go server.SimpleHost(cfg)
+			go api.SimpleHost(cfg)
 			cfg.StartStatut = 1
 			continue
 		}
