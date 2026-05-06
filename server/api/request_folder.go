@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	srv "server/server"
 )
@@ -24,8 +25,8 @@ var items = []Item{
 	{ID: 2, Name: "Item B"},
 }
 
-func SearchInFolder() []Folder {
-	entries, err := os.ReadDir(".")
+func SearchInFolder(cfg srv.Conf) []Folder {
+	entries, err := os.ReadDir(cfg.Folder.VideoF)
 	if err != nil {
 		return nil
 	}
@@ -44,8 +45,7 @@ func SearchInFolder() []Folder {
 }
 
 
-func itemsHandler(w http.ResponseWriter, r *http.Request) {
-	// Allow the Vite dev server to read API responses from the browser.
+func itemsHandler(w http.ResponseWriter, r *http.Request, cfg srv.Conf) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -57,9 +57,8 @@ func itemsHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		// On renvoie la liste en JSON
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(SearchInFolder()); err != nil {
+		if err := json.NewEncoder(w).Encode(SearchInFolder(cfg)); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintln(w, "Erreur d'encodage JSON")
 		}
@@ -67,8 +66,12 @@ func itemsHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("Méthode non autorisée"))
 	}
+	Now := time.Now()
+	fmt.Printf("LOG: Demand Folder %d:%d\n", Now.Hour(), Now.Minute())
 }
 
 func RequestFolder(cfg srv.Conf) {
-	http.HandleFunc("/", itemsHandler)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		itemsHandler(w, r, cfg)
+	})
 }
