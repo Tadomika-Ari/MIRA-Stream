@@ -8,11 +8,13 @@ import (
 )
 
 func SimpleHost(cfg srv.Conf) {
+	var port string
 	RequestFolder(cfg) // For take folder
 	RequestFile(cfg) // take file
 
 	fmt.Println("API lancer")
-	err := http.ListenAndServe(":8000", nil)
+	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)
+	err := http.ListenAndServe(port , nil)
 	if err != nil {
 		fmt.Println("error server")
 	}
