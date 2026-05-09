@@ -29,6 +29,7 @@ export default function LoginPage() {
   const items = [
     { label: 'Acceuil', linkp: '/', type: 'internal' },
     { label: 'Github', linkp: 'https://github.com/Tadomika-Ari/MIRA-Stream', type: 'external' },
+    { label: 'Player', linkp: '/player', type: 'internal'}
   ]
 
   const loadExplorerItems = async () => {
@@ -107,6 +108,7 @@ export default function LoginPage() {
               <ul className="grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
                 {explorerItems.map((item) => (
                   <li
+                    onClick={() => navigate(`/player/${encodeURIComponent(item.name)}`)}
                     key={item.name}
                     className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10"
                   >
@@ -117,11 +119,6 @@ export default function LoginPage() {
               </ul>
             )}
           </div>
-        </section>
-        <section>
-          <video>
-            <source src={`http://localhost:8000/api/video/${filename}`}/>
-          </video>
         </section>
       </main>
     </div>

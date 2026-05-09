@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import Home from './home.tsx'
 import Conn from './pages/connection.tsx'
+import Player from './pages/player.tsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -12,6 +13,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/conn" element={<Conn />} />
+        <Route path="/player/:fileName" element={<Player />}/>
       </Routes>
     </BrowserRouter>
   </StrictMode>,
