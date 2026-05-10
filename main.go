@@ -7,6 +7,7 @@ import (
 	"server/server"
 	cmd "server/server/terminal_cmd"
 	api "server/server/api"
+	test "server/server/core"
 )
 
 func main() {
@@ -40,6 +41,10 @@ func main() {
 		if rep == "start" && cfg.StartStatut == 0 {
 			go api.SimpleHost(cfg)
 			cfg.StartStatut = 1
+			continue
+		}
+		if rep == "test" {
+			test.CreateBiblio(cfg)
 			continue
 		}
 		if rep == "cd" {
