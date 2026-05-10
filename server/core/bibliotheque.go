@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	srv "server/server"
 )
@@ -32,6 +34,37 @@ func get_nb_folder(cfg srv.Conf) int {
 	return nb
 }
 
+func Check_Folder(cfg srv.Conf, name string, folder []Biblio) {
+	content, err := os.ReadDir(cfg.Folder.VideoF + name)
+	var nb_of_season int
+	var nb_of_episode int
+	var ext string
+
+	if err != nil {
+		return
+	}
+	for _, season := range content {
+		if !season.IsDir() {
+			continue
+		}
+		if !strings.HasPrefix(season.Name(), "season") {
+			continue
+		}
+		path, _ := os.ReadDir(season.Name())
+		for _, tmp_for_ep := range path {
+			ext = filepath.Ext(tmp_for_ep.Name())
+			if ext == ".mp4" || ext == ".mkv" {
+				nb_of_episode++
+			}
+		}
+		nb_of_season++;
+	}
+	folder = append(folder, Biblio{
+		TotalSeason: nb_of_season,
+		NbEpisode: nb_of_episode,
+	})
+}
+
 func CreateBiblio(cfg srv.Conf) []Biblio {
 	var nb_of_folder int
 
@@ -56,6 +89,7 @@ func CreateBiblio(cfg srv.Conf) []Biblio {
 			Type: entryType,
 		})
 	}
+	fmt.Printf("%+v\n", folders)
 	return folders
 }
 
