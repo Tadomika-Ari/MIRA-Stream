@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import homelogo from '../assets/maisonclair.png'
 import cameralogo from '../assets/filmclair.png'
+import BiblioDrawer from '../components/BiblioDrawer'
 
 const folderIcon = (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-amber-300">
@@ -21,8 +22,10 @@ const fileIcon = (
 export default function LoginPage() {
 
   const [explorerItems, setExplorerItems] = useState([])
+  const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [selectedBiblio, setSelectedBiblio] = useState(null)
   
   const navigate = useNavigate()
 
@@ -36,10 +39,8 @@ export default function LoginPage() {
     try {
       setLoading(true)
       setError('')
-
       const res = await fetch('http://localhost:8000/')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
       const data = await res.json()
       setExplorerItems(Array.isArray(data) ? data : [])
     } catch (err) {
@@ -51,8 +52,26 @@ export default function LoginPage() {
     }
   }
 
+  const loadBiblio = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const res = await fetch('http://localhost:8000/biblio')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setBiblioItems(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Erreur requête:', err)
+      setBiblioItems([])
+      setError("Impossible de charger la bilbiotheque.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     loadExplorerItems()
+    loadBiblio()
   }, [])
 
   const renderIcon = (type) => (type === 'dir' ? folderIcon : fileIcon)
@@ -120,7 +139,38 @@ export default function LoginPage() {
             )}
           </div>
         </section>
+        <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
+          <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
+            <p className="mb-3 text-sm font-semibold text-zinc-100">
+              Bibliotheque
+            </p>
+            {loading ? (
+              <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
+            ) : error ? (
+              <p className="py-10 text-center text-sm text-zinc-300">{error}</p>
+            ) : (
+              <ul className="grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
+                {biblioItems.map((item) => (
+                  <li
+                    onClick={() => setSelectedBiblio(item)}
+                    key={item.name}
+                    className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10"
+                  >
+                    {renderIcon(item.type)}
+                    <span className="mt-2 text-xs">{item.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </main>
+      <BiblioDrawer
+        biblio={selectedBiblio}
+        open={Boolean(selectedBiblio)}
+        onClose={() => setSelectedBiblio(null)}
+        onPlayEpisode={(episodePath) => navigate(`/player/${encodeURIComponent(episodePath)}`)}
+      />
     </div>
   );
 }
