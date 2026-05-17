@@ -25,7 +25,7 @@ func RequestFile(cfg srv.Conf) {
 		filename := r.PathValue("filename")
 		videoPath := filepath.Join(cfg.Path, cfg.Folder.VideoF, filename)
 		Now := time.Now()
-		fmt.Printf("LOG: Demand File %d:%d\n", Now.Hour(), Now.Minute())
+		fmt.Printf("> LOG: Demand File %d:%d\n", Now.Hour(), Now.Minute())
 		http.ServeFile(w, r, videoPath)
 	})
 }
