@@ -97,25 +97,6 @@ function App() {
             Ce connecter au serveur
           </button>
         </section>
-
-        <section ref={sectionRef} className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8">
-          <p className="text-center text-zinc-300">
-            Ton header est maintenant rendu par un composant React local, sans librairie externe.
-          </p>
-
-          <div className="mt-6 flex justify-center">
-            <button
-              type="button"
-              onClick={loadExplorerItems}
-              className="rounded-md border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm transition hover:bg-zinc-700"
-            >
-              Tester API
-            </button>
-          </div>
-        </section>
-        <section>
-            
-        </section>
       </main>
     </div>
   )
