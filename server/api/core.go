@@ -11,6 +11,7 @@ func SimpleHost(cfg srv.Conf) {
 	var port string
 	RequestFolder(cfg) // For take folder
 	RequestFile(cfg) // take file
+	RequestBiblio(cfg)
 
 	fmt.Println("API lancer")
 	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)
