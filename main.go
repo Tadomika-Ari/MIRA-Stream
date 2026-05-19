@@ -7,7 +7,7 @@ import (
 	"server/server"
 	cmd "server/server/terminal_cmd"
 	api "server/server/api"
-	test "server/server/core"
+	ext "server/server/external"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			test.CreateBiblio(cfg)
+			ext.JikanInfo("attack-on-titan")
 			continue
 		}
 		if rep == "cd" {
