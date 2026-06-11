@@ -20,13 +20,13 @@ const fileIcon = (
 )
 
 export default function LoginPage() {
-
   const [explorerItems, setExplorerItems] = useState([])
   const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBiblio, setSelectedBiblio] = useState(null)
-  
+  const [biblioInfos, setBiblioInfos] = useState<Record<string, string>>({})
+
   const navigate = useNavigate()
 
   const items = [
@@ -70,38 +70,46 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
+  if (biblioItems.length === 0) return
+
+  biblioItems.forEach(async (item, index) => {
+    await new Promise(resolve => setTimeout(resolve, index * 500)) // 500ms entre chaque
+    try {
+      const slug = item.name.toLowerCase().replace(/\s+/g, '-')
+      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${slug}`)
+      if (!res.ok) return
+      const data = await res.json()
+      if (!data?.data?.[0]?.images?.webp?.image_url) return
+      setBiblioInfos(prev => ({ ...prev, [item.name]: data.data[0].images.webp.image_url }))
+    } catch (err) {
+      console.error(`Jikan fetch failed for ${item.name}:`, err)
+    }
+  })
+}, [biblioItems])
+
+  useEffect(() => {
     loadExplorerItems()
     loadBiblio()
   }, [])
 
   const renderIcon = (type) => (type === 'dir' ? folderIcon : fileIcon)
-  const filename = 'Arifureta.mp4'
+
   return (
     <div>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
         <a href="/" className="text-xl font-semibold tracking-wide text-white">
           MIRA Stream
         </a>
-
         <nav aria-label="Main navigation">
           <ul className="flex items-center gap-5 text-sm">
             {items.map((item) => (
               <li key={item.label}>
                 {item.type === 'external' ? (
-                  <a
-                    href={item.linkp}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-zinc-200 transition hover:text-white"
-                  >
+                  <a href={item.linkp} target="_blank" rel="noreferrer" className="text-zinc-200 transition hover:text-white">
                     {item.label}
                   </a>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => navigate(item.linkp)}
-                    className="text-zinc-200 transition hover:text-white"
-                  >
+                  <button type="button" onClick={() => navigate(item.linkp)} className="text-zinc-200 transition hover:text-white">
                     {item.label}
                   </button>
                 )}
@@ -114,11 +122,10 @@ export default function LoginPage() {
         <img src={homelogo} alt="Logo accueil" onClick={() => navigate('/')} className="h-15 w-15 object-contain mx-2" />
         <img src={cameralogo} alt="Logo Film" className="h-15 w-15 object-contain mx-2"/>
       </section>
-      <main className="">
+      <main>
         <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
           <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
             <p className="mb-3 text-sm font-semibold text-zinc-100">Explorateur</p>
-
             {loading ? (
               <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
             ) : error ? (
@@ -141,9 +148,7 @@ export default function LoginPage() {
         </section>
         <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
           <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
-            <p className="mb-3 text-sm font-semibold text-zinc-100">
-              Bibliotheque
-            </p>
+            <p className="mb-3 text-sm font-semibold text-zinc-100">Bibliotheque</p>
             {loading ? (
               <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
             ) : error ? (
@@ -154,10 +159,16 @@ export default function LoginPage() {
                   <li
                     onClick={() => setSelectedBiblio(item)}
                     key={item.name}
-                    className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10"
+                    className="relative flex min-h-50 w-32 cursor-pointer flex-col items-end justify-end rounded-lg border border-white/10 overflow-hidden transition hover:opacity-80"
+                    style={biblioInfos[item.name] ? {
+                      backgroundImage: `url(${biblioInfos[item.name]})`,
+                      backgroundSize: 'contain',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'center'
+                    } : {}}
                   >
-                    {renderIcon(item.type)}
-                    <span className="mt-2 text-xs">{item.name}</span>
+                    {!biblioInfos[item.name] && renderIcon(item.type)}
+                    <span className="w-full bg-black/60 px-2 py-1 text-xs text-white">{item.name}</span>
                   </li>
                 ))}
               </ul>
