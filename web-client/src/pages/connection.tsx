@@ -73,7 +73,7 @@ export default function LoginPage() {
   if (biblioItems.length === 0) return
 
   biblioItems.forEach(async (item, index) => {
-    await new Promise(resolve => setTimeout(resolve, index * 500)) // 500ms entre chaque
+    await new Promise(resolve => setTimeout(resolve, index * 1000)) // 500ms entre chaque
     try {
       const slug = item.name.toLowerCase().replace(/\s+/g, '-')
       const res = await fetch(`https://api.jikan.moe/v4/anime?q=${slug}`)
