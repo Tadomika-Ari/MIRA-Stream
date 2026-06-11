@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 type EpisodeItem = {
   name: string
@@ -21,6 +21,13 @@ type BiblioItem = {
   TotalSeason?: number
   NbEpisode?: number
   PathEpisode?: string[]
+}
+
+type BiblioInfo = {
+  synopsis?: string
+  banner?: string
+  score?: number
+  statut?: string
 }
 
 type BiblioDrawerProps = {
@@ -66,13 +73,35 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
   const [selectedSeason, setSelectedSeason] = useState(0)
   const totalSeason = biblio?.totalseason ?? biblio?.TotalSeason ?? 0
   const totalEpisode = biblio?.nbseason ?? biblio?.NbEpisode ?? 0
+  const [info_anime, setInfoAnime] = useState<BiblioInfo>({})
+
+  useEffect(() => {
+  if (!biblio || !open) return  // ne fetch que quand le drawer s'ouvre
+
+  const fetchInfo = async () => {
+    try {
+      const slug = (biblio.name ?? biblio.Name ?? '').toLowerCase().replace(/\s+/g, '-')
+      const res = await fetch(`http://localhost:8000/jikan/${slug}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      if (!data?.data?.[0]) return
+      setInfoAnime({
+        synopsis: data.data[0].synopsis,
+        score: data.data[0].score,
+        banner: data.data[0].images.webp.image_url
+      })
+    } catch (err) {
+      console.error('Erreur requête:', err)
+    }
+  }
+  fetchInfo()
+}, [biblio, open])  // re-fetch à chaque fois qu'on ouvre un nouvel item
 
   if (!open || !biblio) {
     return null
   }
 
   const activeSeason = seasons[selectedSeason] || seasons[0]
-
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center px-4 py-6 sm:px-6">
       <button
@@ -162,7 +191,10 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
             </div>
 
             <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
-              Next...
+              Synopsis : {info_anime.synopsis} <br /> <br />
+              Ranking : {info_anime.score} <br /> <br />
+              <img src={info_anime.banner}>
+              </img>
             </div>
           </div>
         </div>
