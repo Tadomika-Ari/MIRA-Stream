@@ -15,6 +15,10 @@ func JikanGet(info *info, name string) info {
         return *info
     }
 	json.NewDecoder(response.Body).Decode(info)
+	if len(info.Data) == 0 {
+		fmt.Println("No data")
+        return *info
+    }
 	fmt.Println(info.Data[0].Title)
 	return *info
 }
