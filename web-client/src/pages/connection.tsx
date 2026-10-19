@@ -1,187 +1,83 @@
 // @ts-nocheck
-import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import homelogo from '../assets/maisonclair.png'
-import cameralogo from '../assets/filmclair.png'
 import BiblioDrawer from '../components/BiblioDrawer'
-
-const folderIcon = (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-amber-300">
-    <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4l2 2h7A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
-
-const fileIcon = (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-sky-300">
-    <path d="M7 3.75h7l4 4v12.5A1.75 1.75 0 0 1 16.25 22h-9.5A1.75 1.75 0 0 1 5 20.25V5.5A1.75 1.75 0 0 1 6.75 3.75Z" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M14 3.75V8h4" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
+import { getApiBase } from '../lib/api'
+import './connection.css'
 
 export default function LoginPage() {
-  const [explorerItems, setExplorerItems] = useState([])
   const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBiblio, setSelectedBiblio] = useState(null)
-  const [biblioInfos, setBiblioInfos] = useState<Record<string, string>>({})
-
+  const [biblioInfos, setBiblioInfos] = useState({})
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState('all')
   const navigate = useNavigate()
-
-  const items = [
-    { label: 'Acceuil', linkp: '/', type: 'internal' },
-    { label: 'Github', linkp: 'https://github.com/Tadomika-Ari/MIRA-Stream', type: 'external' },
-    { label: 'Player', linkp: '/player', type: 'internal'}
-  ]
-
-  const loadExplorerItems = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const res = await fetch('http://localhost:8000/')
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
-      setExplorerItems(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Erreur requête:', err)
-      setExplorerItems([])
-      setError("Impossible de charger le dossier.")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const loadBiblio = async () => {
     try {
       setLoading(true)
       setError('')
-      const res = await fetch('http://localhost:8000/biblio')
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
+      const response = await fetch(`${getApiBase()}/biblio`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
       setBiblioItems(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Erreur requête:', err)
+    } catch (requestError) {
+      console.error('Erreur requête:', requestError)
       setBiblioItems([])
-      setError("Impossible de charger la bilbiotheque.")
+      setError('Impossible de charger la bibliothèque.')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-  if (biblioItems.length === 0) return
-
-  biblioItems.forEach(async (item) => {
-    try {
-      const animeName = item.name ?? ''
-      const res = await fetch(`http://localhost:8000/jikan/${encodeURIComponent(animeName)}`)
-      if (!res.ok) return
-      const data = await res.json()
-      const imageUrl = data?.data?.[0]?.images?.webp?.image_url
-      if (!imageUrl) return
-      setBiblioInfos(prev => ({ ...prev, [animeName]: imageUrl }))
-    } catch (err) {
-      console.error(`AniList fetch failed for ${item.name}:`, err)
-    }
-  })
-}, [biblioItems])
+  useEffect(() => { loadBiblio() }, [])
 
   useEffect(() => {
-    loadExplorerItems()
-    loadBiblio()
-  }, [])
+    biblioItems.forEach(async (item) => {
+      try {
+        const name = item.name ?? ''
+        const response = await fetch(`${getApiBase()}/jikan/${encodeURIComponent(name)}`)
+        if (!response.ok) return
+        const data = await response.json()
+        const imageUrl = data?.data?.[0]?.images?.webp?.image_url
+        if (imageUrl) setBiblioInfos((previous) => ({ ...previous, [name]: imageUrl }))
+      } catch (requestError) {
+        console.error(`Jikan fetch failed for ${item.name}:`, requestError)
+      }
+    })
+  }, [biblioItems])
 
-  const renderIcon = (type) => (type === 'dir' ? folderIcon : fileIcon)
+  const filteredItems = useMemo(() => biblioItems.filter((item) => {
+    const matchesQuery = (item.name ?? '').toLowerCase().includes(query.toLowerCase())
+    if (filter === 'complete') return matchesQuery && (item.nbseason ?? 0) > 0
+    if (filter === 'new') return matchesQuery && biblioItems.indexOf(item) < 4
+    return matchesQuery
+  }), [biblioItems, filter, query])
+
+  const featured = biblioItems[0]
+  const featuredImage = featured && biblioInfos[featured.name]
 
   return (
-    <div>
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        <a href="/" className="text-xl font-semibold tracking-wide text-white">
-          MIRA Stream
-        </a>
-        <nav aria-label="Main navigation">
-          <ul className="flex items-center gap-5 text-sm">
-            {items.map((item) => (
-              <li key={item.label}>
-                {item.type === 'external' ? (
-                  <a href={item.linkp} target="_blank" rel="noreferrer" className="text-zinc-200 transition hover:text-white">
-                    {item.label}
-                  </a>
-                ) : (
-                  <button type="button" onClick={() => navigate(item.linkp)} className="text-zinc-200 transition hover:text-white">
-                    {item.label}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+    <div className="library-shell">
+      <aside className="library-sidebar">
+        <button className="brand-lockup" onClick={() => navigate('/')} type="button"><span className="brand-mark">M</span><span>MIRA<span>STREAM</span></span></button>
+        <nav aria-label="Navigation principale" className="sidebar-nav">
+          <button className="nav-item active" type="button"><span>⌂</span> Accueil</button>
+          <button className="nav-item" type="button" onClick={() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' })}><span>▦</span> Ma bibliothèque</button>
+          <a className="nav-item" href="https://github.com/Tadomika-Ari/MIRA-Stream" target="_blank" rel="noreferrer"><span>◌</span> Projet GitHub</a>
         </nav>
-      </header>
-      <section className="verticale-lr mx-4">
-        <img src={homelogo} alt="Logo accueil" onClick={() => navigate('/')} className="h-15 w-15 object-contain mx-2" />
-        <img src={cameralogo} alt="Logo Film" className="h-15 w-15 object-contain mx-2"/>
-      </section>
-      <main>
-        <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
-          <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
-            <p className="mb-3 text-sm font-semibold text-zinc-100">Explorateur</p>
-            {loading ? (
-              <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
-            ) : error ? (
-              <p className="py-10 text-center text-sm text-zinc-300">{error}</p>
-            ) : (
-              <ul className="grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
-                {explorerItems.map((item) => (
-                  <li
-                    onClick={() => navigate(`/player/${encodeURIComponent(item.name)}`)}
-                    key={item.name}
-                    className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 p-3 text-center transition hover:bg-white/10"
-                  >
-                    {renderIcon(item.type)}
-                    <span className="mt-2 text-xs">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-        <section className="mx-auto w-full h-full max-w-6xl px-4 pb-20">
-          <div className="mx-auto w-full h-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
-            <p className="mb-3 text-sm font-semibold text-zinc-100">Bibliotheque</p>
-            {loading ? (
-              <p className="py-10 text-center text-sm text-zinc-300">Chargement du dossier...</p>
-            ) : error ? (
-              <p className="py-10 text-center text-sm text-zinc-300">{error}</p>
-            ) : (
-              <ul className="grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
-                {biblioItems.map((item) => (
-                  <li
-                    onClick={() => setSelectedBiblio(item)}
-                    key={item.name}
-                    className="relative flex min-h-50 w-32 cursor-pointer flex-col items-end justify-end rounded-lg border border-white/10 overflow-hidden transition hover:opacity-80"
-                    style={biblioInfos[item.name] ? {
-                      backgroundImage: `url(${biblioInfos[item.name]})`,
-                      backgroundSize: 'contain',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'center'
-                    } : {}}
-                  >
-                    {!biblioInfos[item.name] && renderIcon(item.type)}
-                    <span className="w-full bg-black/60 px-2 py-1 text-xs text-white">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
+        <div className="sidebar-foot">MIRA STREAM <span>LOCAL SERVER</span></div>
+      </aside>
+      <main className="library-main">
+        <header className="library-header"><div className="mobile-brand">MIRA<span>STREAM</span></div><label className="search-box"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher dans votre bibliothèque" aria-label="Rechercher" />{query && <button type="button" onClick={() => setQuery('')} aria-label="Effacer la recherche">×</button>}</label><button className="profile-button" type="button" title="Profil">MS</button></header>
+        {loading ? <div className="library-loading"><span /> Chargement de votre bibliothèque...</div> : error ? <div className="library-error">{error}<button type="button" onClick={loadBiblio}>Réessayer</button></div> : <>
+          {featured && <section className="featured-hero" style={featuredImage ? { backgroundImage: `linear-gradient(90deg, #080a12 8%, rgba(8,10,18,.75) 42%, rgba(8,10,18,.1)), url(${featuredImage})` } : {}}><div className="hero-copy"><p className="eyebrow">À LA UNE · VOTRE SERVEUR</p><h1>{featured.name}</h1><p className="hero-meta">Série · {featured.totalseason || 0} saison{featured.totalseason > 1 ? 's' : ''} · {featured.nbseason || 0} épisodes</p><p className="hero-description">Retrouvez votre collection, saison après saison, dans une expérience pensée pour le grand écran.</p><button className="primary-action" type="button" onClick={() => setSelectedBiblio(featured)}><span>▶</span> Ouvrir la fiche</button></div></section>}
+          <section className="library-section" id="library"><div className="section-heading"><div><p className="eyebrow">COLLECTION LOCALE</p><h2>Votre bibliothèque</h2></div><span className="library-count">{filteredItems.length} titre{filteredItems.length > 1 ? 's' : ''}</span></div><div className="filter-row" role="tablist" aria-label="Filtrer la bibliothèque">{[['all', 'Tout voir'], ['complete', 'Séries suivies'], ['new', 'Ajouts récents']].map(([value, label]) => <button key={value} className={filter === value ? 'filter-button selected' : 'filter-button'} onClick={() => setFilter(value)} type="button" role="tab" aria-selected={filter === value}>{label}</button>)}</div>{filteredItems.length === 0 ? <div className="empty-state">Aucun titre ne correspond à votre recherche.</div> : <div className="poster-grid">{filteredItems.map((item) => <button className="poster-card" onClick={() => setSelectedBiblio(item)} key={item.name} type="button"><div className="poster-art" style={biblioInfos[item.name] ? { backgroundImage: `linear-gradient(0deg, rgba(5,7,12,.92), transparent 60%), url(${biblioInfos[item.name]})` } : {}}><span className="poster-fallback">{item.name?.charAt(0)}</span><span className="poster-play">▶</span></div><div className="poster-info"><strong>{item.name}</strong><span>{item.totalseason || 0} saison{item.totalseason > 1 ? 's' : ''} · {item.nbseason || 0} épisodes</span></div></button>)}</div>}</section>
+        </>}
       </main>
-      <BiblioDrawer
-        biblio={selectedBiblio}
-        open={Boolean(selectedBiblio)}
-        onClose={() => setSelectedBiblio(null)}
-        onPlayEpisode={(episodePath) => navigate(`/player/${encodeURIComponent(episodePath)}`)}
-      />
+      <BiblioDrawer biblio={selectedBiblio} open={Boolean(selectedBiblio)} onClose={() => setSelectedBiblio(null)} onPlayEpisode={(episodePath) => navigate(`/player/${encodeURIComponent(episodePath)}`)} />
     </div>
-  );
+  )
 }

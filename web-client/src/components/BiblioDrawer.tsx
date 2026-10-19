@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
+import { getApiBase } from "../lib/api"
+import "./BiblioDrawer.css"
 
 type EpisodeItem = {
   name: string
@@ -81,7 +83,7 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
   const fetchInfo = async () => {
     try {
       const animeName = biblio.name ?? biblio.Name ?? ''
-      const res = await fetch(`http://localhost:8000/jikan/${encodeURIComponent(animeName)}`)
+      const res = await fetch(`${getApiBase()}/jikan/${encodeURIComponent(animeName)}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (!data?.data?.[0]) return
@@ -103,20 +105,20 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
 
   const activeSeason = seasons[selectedSeason] || seasons[0]
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center px-4 py-6 sm:px-6">
+    <div className="drawer-overlay">
       <button
         type="button"
         aria-label="Fermer la bibliotheque"
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="drawer-backdrop"
         onClick={onClose}
       />
 
-      <aside className="relative flex h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/95 px-6 py-6 text-white shadow-2xl shadow-black/50">
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+      <aside className="drawer-panel">
+        <div className="drawer-header">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Bibliotheque</p>
-            <h2 className="mt-2 text-3xl font-semibold">{biblio.name ?? biblio.Name}</h2>
-            <p className="mt-2 text-sm text-zinc-300">
+            <p className="drawer-eyebrow">Bibliothèque</p>
+            <h2>{biblio.name ?? biblio.Name}</h2>
+            <p className="drawer-muted">
               {totalSeason} saison{totalSeason > 1 ? "s" : ""} · {totalEpisode} episode{totalEpisode > 1 ? "s" : ""}
             </p>
           </div>
@@ -124,18 +126,18 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/10"
+            className="drawer-close"
           >
             Fermer
           </button>
         </div>
 
-        <div className="mt-6 grid flex-1 gap-6 overflow-hidden lg:grid-cols-[220px_1fr]">
-          <div className="space-y-3 overflow-y-auto pr-1">
-            <p className="text-sm font-semibold text-zinc-200">Saisons</p>
+        <div className="drawer-body">
+          <div className="drawer-seasons">
+            <p className="drawer-label">Saisons</p>
             <div className="grid gap-2">
               {seasons.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
+                <div className="drawer-empty">
                   Aucun episode indexe pour le moment.
                 </div>
               ) : (
@@ -144,57 +146,56 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
                     key={season.name}
                     type="button"
                     onClick={() => setSelectedSeason(index)}
-                    className={`rounded-2xl border px-4 py-3 text-left transition ${
+                    className={`drawer-season ${
                       index === selectedSeason
-                        ? "border-amber-300/60 bg-amber-300/15 text-white"
-                        : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
+                        ? "selected"
+                        : ""
                     }`}
                   >
-                    <span className="block text-sm font-semibold">{season.name}</span>
-                    <span className="block text-xs text-zinc-400">
+                    <span>{season.name}</span>
+                    <small>
                       {season.episodes.length} episode{season.episodes.length > 1 ? "s" : ""}
-                    </span>
+                    </small>
                   </button>
                 ))
               )}
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto rounded-3xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
+          <div className="drawer-content">
+            <div className="drawer-content-header">
               <div>
-                <p className="text-sm text-zinc-400">Selection actuelle</p>
-                <h3 className="text-2xl font-semibold text-white">{activeSeason?.name || "Aucune saison"}</h3>
+                <p className="drawer-muted">Sélection actuelle</p>
+                <h3>{activeSeason?.name || "Aucune saison"}</h3>
               </div>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-zinc-300">
+              <span className="drawer-count">
                 {activeSeason?.episodes.length || 0} episode{(activeSeason?.episodes.length || 0) > 1 ? "s" : ""}
               </span>
             </div>
 
-            <div className="mt-4 grid gap-3">
+            <div className="episode-list">
               {(activeSeason?.episodes || []).map((episode: EpisodeItem, index: number) => (
                 <button
                   key={episode.path}
                   type="button"
                   onClick={() => onPlayEpisode?.(episode.path)}
-                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-zinc-900/70 px-4 py-3 text-left transition hover:border-amber-300/50 hover:bg-zinc-900"
+                  className="episode-row"
                 >
                   <div>
-                    <p className="text-sm font-medium text-white">
+                    <p>
                       Episode {index + 1}
                     </p>
-                    <p className="text-xs text-zinc-400">{episode.name}</p>
+                    <small>{episode.name}</small>
                   </div>
-                  <span className="text-xs uppercase tracking-[0.24em] text-amber-200">Play</span>
+                  <span>Play</span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
-              Synopsis : {info_anime.synopsis} <br /> <br />
-              Ranking : {info_anime.score} <br /> <br />
-              <img src={info_anime.banner}>
-              </img>
+            <div className="drawer-info">
+              <p><strong>Synopsis</strong>{info_anime.synopsis || 'Aucune synopsis disponible.'}</p>
+              <p><strong>Score</strong>{info_anime.score || 'Non classé'}</p>
+              {info_anime.banner && <img src={info_anime.banner} alt="Affiche de la série" />}
             </div>
           </div>
         </div>

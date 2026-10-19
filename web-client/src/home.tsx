@@ -1,103 +1,48 @@
 // @ts-nocheck
-import { useEffect, useState, useRef } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { defaultApiBase, normalizeApiBase, setApiBase } from './lib/api'
 import './home.css'
-import { Navigate, useNavigate } from 'react-router-dom'
-
-const folderIcon = (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-amber-300">
-    <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4l2 2h7A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9Z" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
-
-const fileIcon = (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-12 w-12 text-sky-300">
-    <path d="M7 3.75h7l4 4v12.5A1.75 1.75 0 0 1 16.25 22h-9.5A1.75 1.75 0 0 1 5 20.25V5.5A1.75 1.75 0 0 1 6.75 3.75Z" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M14 3.75V8h4" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
 
 function App() {
-  const [explorerItems, setExplorerItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-
-  const items = [
-    { label: 'Ce connecter' },
-    { label: 'Github' },
-  ]
-
-  const sectionRef = useRef(null)
-
-  const loadExplorerItems = async () => {
-    try {
-      setLoading(true)
-      setError('')
-
-      const res = await fetch('http://localhost:8000/')
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-      const data = await res.json()
-      setExplorerItems(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Erreur requête:', err)
-      setExplorerItems([])
-      setError("Impossible de charger le dossier.")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadExplorerItems()
-  }, [])
-
-  const handleScroll = () => {
-    sectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  const renderIcon = (type) => (type === 'dir' ? folderIcon : fileIcon)
-
   const navigate = useNavigate()
+  const [serverAddress, setServerAddress] = useState(localStorage.getItem('mira-stream-api-base') || '')
+  const [customMode, setCustomMode] = useState(false)
+  const [addressError, setAddressError] = useState('')
+
+  const connectToServer = (address) => {
+    if (!address.trim()) {
+      setAddressError('Indiquez une adresse IP ou un nom d’hôte.')
+      return
+    }
+    const normalized = normalizeApiBase(address)
+    setApiBase(normalized)
+    navigate('/conn')
+  }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        <a href="/" className="text-xl font-semibold tracking-wide text-white">
-          MIRA Stream
-        </a>
-
-        <nav aria-label="Main navigation">
-          <ul className="flex items-center gap-5 text-sm">
-            {items.map((item) => (
-              <li key={item.label}>
-                <button
-                  type="button"
-                  onClick={handleScroll}
-                  className="text-zinc-200 transition hover:text-white"
-                >
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div className="home-shell">
+      <header className="home-header">
+        <button className="home-brand" type="button" onClick={() => navigate('/')}><span>M</span><strong>MIRA<em>STREAM</em></strong></button>
+        <div className="home-status"><i /> Serveur privé · prêt à connecter</div>
       </header>
-
-      <main>
-        <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-6xl flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-4xl font-bold md:text-5xl">
-            Bienvenue sur Mira Stream
-          </h1>
-
-          <button
-            type="button"
-            onClick={() => navigate('/conn')}
-            className="mt-6 rounded-md border border-zinc-600 bg-zinc-800 px-5 py-3 text-sm transition hover:bg-zinc-700"
-          >
-            Ce connecter au serveur
-          </button>
+      <main className="home-main">
+        <section className="home-hero">
+          <div className="home-copy">
+            <p className="home-kicker">VOTRE CINÉMA, PARTOUT</p>
+            <h1>Votre collection.<br /><strong>Votre espace.</strong></h1>
+            <p className="home-intro">MIRA Stream transforme votre serveur vidéo en une bibliothèque élégante, simple et accessible depuis tous vos écrans.</p>
+            <div className="home-actions">
+              <button className="home-primary" type="button" onClick={() => connectToServer(defaultApiBase)}><span>▶</span> Se connecter en local</button>
+              <button className="home-secondary" type="button" onClick={() => { setCustomMode(!customMode); setAddressError('') }}><span>⌁</span> Adresse personnalisée</button>
+            </div>
+            {customMode && <form className="server-form" onSubmit={(event) => { event.preventDefault(); connectToServer(serverAddress) }}><label htmlFor="server-address">Adresse du serveur</label><div><input id="server-address" value={serverAddress} onChange={(event) => setServerAddress(event.target.value)} placeholder="192.168.1.24:8000" autoFocus /><button type="submit" aria-label="Se connecter à cette adresse">→</button></div><small>Exemple : 192.168.1.24:8000 ou https://mon-serveur.local</small>{addressError && <p>{addressError}</p>}</form>}
+          </div>
+          <div className="home-orbit" aria-hidden="true"><div className="orbit-ring orbit-ring-one" /><div className="orbit-ring orbit-ring-two" /><div className="orbit-glow" /><div className="orbit-card orbit-card-top"><span>01</span><strong>WATCH</strong><small>YOUR WAY</small></div><div className="orbit-card orbit-card-bottom"><span>●</span><strong>LIBRARY</strong><small>ALWAYS READY</small></div><div className="orbit-core">M</div></div>
         </section>
+        <section className="home-features" aria-label="Fonctionnalités"><article><span>01</span><h2>Une bibliothèque claire</h2><p>Retrouvez vos séries et épisodes sans vous perdre dans les menus.</p></article><article><span>02</span><h2>Votre serveur, vos règles</h2><p>Connectez votre installation locale ou une machine distante en quelques secondes.</p></article><article><span>03</span><h2>Prêt pour le canapé</h2><p>Une interface pensée pour parcourir, choisir et lancer la lecture.</p></article></section>
       </main>
+      <footer className="home-footer"><span>MIRA STREAM / MEDIA CENTER</span><span>v0.1 · SELF-HOSTED</span></footer>
     </div>
   )
 }

@@ -6,12 +6,13 @@ import homelogo from '../assets/maisonclair.png'
 import cameralogo from '../assets/filmclair.png'
 import { Plyr as VideoPlayer } from "plyr-react"
 import "plyr-react/plyr.css"
+import { getApiBase } from '../lib/api'
 
 
 export default function Player() {
     const { fileName } = useParams()
     const videoSrc = fileName
-        ? `http://localhost:8000/api/video/${encodeURIComponent(fileName)}`
+        ? `${getApiBase()}/api/video/${encodeURIComponent(fileName)}`
         : ""
     const source = {
         type: "video",
