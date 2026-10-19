@@ -72,17 +72,17 @@ export default function LoginPage() {
   useEffect(() => {
   if (biblioItems.length === 0) return
 
-  biblioItems.forEach(async (item, index) => {
-    await new Promise(resolve => setTimeout(resolve, index * 1000)) // 500ms entre chaque
+  biblioItems.forEach(async (item) => {
     try {
-      const slug = item.name.toLowerCase().replace(/\s+/g, '-')
-      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${slug}`)
+      const animeName = item.name ?? ''
+      const res = await fetch(`http://localhost:8000/jikan/${encodeURIComponent(animeName)}`)
       if (!res.ok) return
       const data = await res.json()
-      if (!data?.data?.[0]?.images?.webp?.image_url) return
-      setBiblioInfos(prev => ({ ...prev, [item.name]: data.data[0].images.webp.image_url }))
+      const imageUrl = data?.data?.[0]?.images?.webp?.image_url
+      if (!imageUrl) return
+      setBiblioInfos(prev => ({ ...prev, [animeName]: imageUrl }))
     } catch (err) {
-      console.error(`Jikan fetch failed for ${item.name}:`, err)
+      console.error(`AniList fetch failed for ${item.name}:`, err)
     }
   })
 }, [biblioItems])

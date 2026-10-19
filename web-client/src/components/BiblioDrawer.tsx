@@ -80,15 +80,15 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
 
   const fetchInfo = async () => {
     try {
-      const slug = (biblio.name ?? biblio.Name ?? '').toLowerCase().replace(/\s+/g, '-')
-      const res = await fetch(`http://localhost:8000/jikan/${slug}`)
+      const animeName = biblio.name ?? biblio.Name ?? ''
+      const res = await fetch(`http://localhost:8000/jikan/${encodeURIComponent(animeName)}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (!data?.data?.[0]) return
       setInfoAnime({
         synopsis: data.data[0].synopsis,
         score: data.data[0].score,
-        banner: data.data[0].images.webp.image_url
+        banner: data.data[0].images?.webp?.image_url
       })
     } catch (err) {
       console.error('Erreur requête:', err)
