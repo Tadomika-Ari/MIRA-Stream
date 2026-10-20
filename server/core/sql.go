@@ -16,15 +16,33 @@ func CreateSQL() error {
 	_, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            account TEXT NOT NULL,
-            devid INTEGER NOT NULL,
-            key INTEGER NOT NULL
+            account TEXT NOT NULL
         )
     `)
 	if err != nil {
 		fmt.Println("Error with exec")
+		return err
 	}
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS anime (
+			id INTEGER PRiMARY KEY,
+			animeName TEXT NOT NULL,
+			nsfw BOOLEAN
+		)
+	`)
+	if err != nil {
+		fmt.Println("Error with table likeanime")
+		return err
+	}
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS user_anime (
+			userid INTEGER NOT NULL REFERENCE user(id ) ON DELETE CASCADE,
+			animeid INTEGER NOT NULL REFERENCE anime(id) ON DELETE CASCADE,
+			status TEXT,
+			timestamp INTEGER,
+			PRIMARY KEY (userid, animeid)
+		)
+	`)
 	return nil
 }
 
