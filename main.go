@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 	"server/server"
-	cmd "server/server/terminal_cmd"
 	api "server/server/api"
-	ext "server/server/external"
+	core "server/server/core"
+	cmd "server/server/terminal_cmd"
 )
 
 func main() {
@@ -44,7 +44,9 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			ext.JikanInfo("attack-on-titan")
+			if err := core.CreateSQL(); err != nil {
+				fmt.Printf("Erreur SQL: %v\n", err)
+			}
 			continue
 		}
 		if rep == "cd" {
