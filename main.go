@@ -39,8 +39,8 @@ func main() {
 			continue
 		}
 		if rep == "start" && cfg.StartStatut == 0 {
-			go api.SimpleHost(cfg)
 			cfg.StartStatut = 1
+			go api.SimpleHost(cfg)
 			continue
 		}
 		if rep == "test" {
@@ -52,6 +52,15 @@ func main() {
 		if rep == "sql_view" {
 			core.AddBibloInfoSQL()
 			core.TakeInfoSQL()
+			continue
+		}
+		if rep == "status" {
+			if cfg.StartStatut == 1 {
+				println("Server online")
+			}
+			if cfg.StartStatut == 0 {
+				fmt.Println("Server offline")
+			}
 			continue
 		}
 		if rep == "cd" {
