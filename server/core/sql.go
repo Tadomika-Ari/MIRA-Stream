@@ -14,13 +14,15 @@ type conf struct {
 		WebtoonF string `toml:"webtoon_f"`
 	} `toml:"folder"`
 	Server struct {
-		Port int    `toml:"port"`
-		Host string `toml:"host"`
+		Port     int    `toml:"port"`
+		Host     string `toml:"host"`
 		Database string `toml:"database"`
 	} `toml:"server"`
 	Path        string
 	StartStatut int
 }
+
+type Conf = conf
 
 func GetDatabasePath() (string, error) {
 	var conf conf
@@ -108,11 +110,17 @@ func TakeInfoSQL() error {
 	rows, err := db.Query(`
 		SELECT * FROM anime
 	`)
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
 	for rows.Next() {
 		var id int
 		var animeName string
 		var nsfw bool
+		if rows.Err() != nil {
+			return rows.Err()
+		}
 		rows.Scan(&id, &animeName, &nsfw)
 		println(id, animeName, nsfw)
 	}

@@ -19,5 +19,6 @@ func SimpleHost(cfg srv.Conf) {
 	err := http.ListenAndServe(port , nil)
 	if err != nil {
 		fmt.Println("error server")
+		cfg.StartStatut = 0
 	}
 }
