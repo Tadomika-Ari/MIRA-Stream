@@ -50,8 +50,8 @@ func main() {
 			continue
 		}
 		if rep == "sql_view" {
-			core.AddBibloInfoSQL()
-			core.TakeInfoSQL()
+			core.AddUsersSQL("admin", "admin")
+			core.GetAllUsersSQL()
 			continue
 		}
 		if rep == "status" {
