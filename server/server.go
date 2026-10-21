@@ -16,6 +16,7 @@ type conf struct {
 	Server struct {
 		Port int    `toml:"port"`
 		Host string `toml:"host"`
+		Database string `toml:"database"`
 	} `toml:"server"`
 	Path        string
 	StartStatut int

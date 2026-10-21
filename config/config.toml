@@ -1,6 +1,7 @@
 [server]
 port = 8000
 host = "localhost"
+database = "database/database.db"
 
 [folder]
 video_f = "test-folder"

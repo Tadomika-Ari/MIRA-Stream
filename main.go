@@ -49,6 +49,11 @@ func main() {
 			}
 			continue
 		}
+		if rep == "sql_view" {
+			core.AddBibloInfoSQL()
+			core.TakeInfoSQL()
+			continue
+		}
 		if rep == "cd" {
 			_, err := fmt.Scan(&path)
 			if err != nil {

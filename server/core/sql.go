@@ -4,11 +4,41 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/BurntSushi/toml"
 	_ "modernc.org/sqlite"
 )
 
+type conf struct {
+	Folder struct {
+		VideoF   string `toml:"video_f"`
+		WebtoonF string `toml:"webtoon_f"`
+	} `toml:"folder"`
+	Server struct {
+		Port int    `toml:"port"`
+		Host string `toml:"host"`
+		Database string `toml:"database"`
+	} `toml:"server"`
+	Path        string
+	StartStatut int
+}
+
+func GetDatabasePath() (string, error) {
+	var conf conf
+	_, err := toml.DecodeFile("config/config.toml", &conf)
+	if err != nil {
+		return "", err
+	}
+	path := conf.Server.Database
+	return path, err
+}
+
 func CreateSQL() error {
-	db, err := sql.Open("sqlite", "database/database.db")
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
 	if err != nil {
 		return fmt.Errorf("ouvrir la base de données: %w", err)
 	}
@@ -46,3 +76,45 @@ func CreateSQL() error {
 	return nil
 }
 
+func AddBibloInfoSQL() error {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(`
+		INSERT INTO anime (animeName, nsfw) 
+		VALUES (?, ?)
+	`, "Wisteria", false)
+	return nil
+}
+
+func TakeInfoSQL() error {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	rows, err := db.Query(`
+		SELECT * FROM anime
+	`)
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		var animeName string
+		var nsfw bool
+		rows.Scan(&id, &animeName, &nsfw)
+		println(id, animeName, nsfw)
+	}
+	return nil
+}
