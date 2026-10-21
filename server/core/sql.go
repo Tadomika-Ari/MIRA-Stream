@@ -78,6 +78,54 @@ func CreateSQL() error {
 	return nil
 }
 
+func AddUsersSQL(name string, password string) error {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(`
+		INSERT INTO users (account) 
+		VALUES (?)
+	`, "admin")
+	return nil
+}
+
+func GetAllUsersSQL() error {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	rows, err := db.Query(`
+		SELECT * FROM users
+	`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		var account string
+		if rows.Err() != nil {
+			return rows.Err()
+		}
+		rows.Scan(&id, &account)
+		println(id, account)
+	}
+	return nil
+}
+
 func AddBibloInfoSQL() error {
 	path, err := GetDatabasePath()
 	if err != nil {
