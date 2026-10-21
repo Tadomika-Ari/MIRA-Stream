@@ -37,7 +37,7 @@ export default function LoginPage() {
     biblioItems.forEach(async (item) => {
       try {
         const name = item.name ?? ''
-        const response = await fetch(`${getApiBase()}/jikan/${encodeURIComponent(name)}`)
+        const response = await fetch(`${getApiBase()}/anilist/${encodeURIComponent(name)}`)
         if (!response.ok) return
         const data = await response.json()
         const imageUrl = data?.data?.[0]?.images?.webp?.image_url

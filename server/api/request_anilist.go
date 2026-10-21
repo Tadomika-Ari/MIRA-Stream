@@ -10,7 +10,7 @@ import (
 	external "server/server/external"
 )
 
-func JikanHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
+func AnilistHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 	setCORSHeaders(w, r)
 
 	if r.Method == http.MethodOptions {
@@ -19,7 +19,7 @@ func JikanHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 	}
 
 	name := r.PathValue("name")
-	info := external.JikanInfo(name)
+	info := external.AnilistInfo(name)
 
 	switch r.Method {
 	case http.MethodGet:
@@ -38,7 +38,7 @@ func JikanHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 }
 
 func RequestJikan(cfg serv.Conf) {
-	http.HandleFunc("/jikan/{name}", func(w http.ResponseWriter, r *http.Request) {
-		JikanHandler(w, r, cfg)
+	http.HandleFunc("/anilist/{name}", func(w http.ResponseWriter, r *http.Request) {
+		AnilistHandler(w, r, cfg)
 	})
 }

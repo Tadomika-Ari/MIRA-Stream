@@ -17,8 +17,8 @@ type info struct {
 	} `json:"data"`
 }
 
-func JikanInfo(name string) info {
+func AnilistInfo(name string) info {
 	var info info
-	JikanGet(&info, name)
+	AnilistGet(&info, name)
 	return info
 }
