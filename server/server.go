@@ -35,6 +35,10 @@ func ServerStart() Conf {
 	if err != nil {
 		log.Fatalf("error add biblio in database")
 	}
+	err = core.AddUsersSQL("admin", "admin")
+	if err != nil {
+		log.Fatalf("Error with add first user")
+	}
 	fmt.Println("Serveur Pret")
 	return cfg
 }

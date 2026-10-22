@@ -44,13 +44,12 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			if err := core.CreateSQL(); err != nil {
+			if err := core.TakeInfoSQL(); err != nil {
 				fmt.Printf("Erreur SQL: %v\n", err)
 			}
 			continue
 		}
-		if rep == "sql_view" {
-			core.AddUsersSQL("admin", "admin")
+		if rep == "all_users" {
 			core.GetAllUsersSQL()
 			continue
 		}
