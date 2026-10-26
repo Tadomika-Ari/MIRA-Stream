@@ -34,7 +34,7 @@ go.work.sum
 folder_test
 test-folder
 
-database/*
+database/database.db
 
 # react folder
 # Logs
