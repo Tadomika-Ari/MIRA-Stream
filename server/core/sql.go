@@ -174,3 +174,40 @@ func TakeInfoSQL() error {
 	}
 	return nil
 }
+
+func GetUsers() []string {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return nil
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		fmt.Println("ERROR DEBUG 2")
+		return nil
+	}
+	defer db.Close()
+	rows, err := db.Query(`
+		SELECT * FROM users
+	`)
+	if err != nil {
+		fmt.Println("ERROR DEBUG 3")
+		return nil
+	}
+	defer rows.Close()
+
+	var list_users []string
+
+	for rows.Next() {
+		var id int
+		var account string
+		if rows.Err() != nil {
+			fmt.Println("ERROR DEBUG 4")
+			return nil
+		}
+		rows.Scan(&id, &account)
+		println(id, account)
+		list_users = append(list_users, account)
+	}
+	return list_users
+}

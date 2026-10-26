@@ -13,6 +13,7 @@ func SimpleHost(cfg srv.Conf) {
 	RequestFile(cfg) // take file
 	RequestLibrary(cfg) // create library
 	RequestJikan(cfg) // get info api jikan
+	RequestLogin(cfg)
 
 	fmt.Println("API lancer")
 	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)
