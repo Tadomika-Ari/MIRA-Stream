@@ -211,3 +211,24 @@ func GetUsers() []string {
 	}
 	return list_users
 }
+
+func DeleteUser() []string {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return nil
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		fmt.Println("ERROR DEBUG 2")
+		return nil
+	}
+	defer db.Close()
+	_, err = db.Exec(`
+		DELETE FROM users WHERE account == (?) 
+	`, "admin")
+
+	var list_users []string
+	list_users = GetUsers()
+	return list_users
+}
