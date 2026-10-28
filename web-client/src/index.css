@@ -7,3 +7,40 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@keyframes mira-page-in {
+  from {
+    transform: translateY(10px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes mira-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mira-page-in {
+  animation: mira-page-in 520ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.mira-fade-up {
+  animation: mira-fade-up 650ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mira-page-in,
+  .mira-fade-up {
+    animation: none;
+  }
+}
