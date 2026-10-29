@@ -20,7 +20,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#080a12] font-['DM_Sans'] text-[#f5f1eb] before:pointer-events-none before:fixed before:inset-0 before:bg-[linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] before:bg-[size:80px_80px] before:opacity-[.23]">
+    <div className="mira-page-in min-h-screen overflow-hidden bg-[#080a12] font-['DM_Sans'] text-[#f5f1eb] before:pointer-events-none before:fixed before:inset-0 before:bg-[linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] before:bg-[size:80px_80px] before:opacity-[.23]">
       <header className="relative z-[1] flex items-center justify-between px-[clamp(22px,6vw,90px)] py-7 max-[760px]:px-[18px] max-[760px]:py-[21px]">
         <button className="flex cursor-pointer items-center gap-[11px] border-0 bg-transparent text-white" type="button" onClick={() => navigate('/')}><span className="grid size-9 place-items-center rounded-[10px] bg-[#ffba62] font-['Space_Grotesk'] text-xl font-bold text-[#19130b]">M</span><strong className="flex flex-col items-start font-['Space_Grotesk'] text-[15px] font-bold tracking-[.12em]">MIRA<em className="mt-[3px] text-[9px] not-italic tracking-[.32em] text-[#ffba62]">STREAM</em></strong></button>
         <div className="text-[11px] text-[#777e90] max-[760px]:hidden"><i className="mr-[7px] inline-block size-1.5 rounded-full bg-[#81d79b] shadow-[0_0_10px_#81d79b]" /> Serveur privé · prêt à connecter</div>
