@@ -37,7 +37,7 @@ func AnilistHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 
 }
 
-func RequestJikan(cfg serv.Conf) {
+func RequestAnilist(cfg serv.Conf) {
 	http.HandleFunc("/anilist/{name}", func(w http.ResponseWriter, r *http.Request) {
 		AnilistHandler(w, r, cfg)
 	})
