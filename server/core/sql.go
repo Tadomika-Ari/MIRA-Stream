@@ -48,7 +48,7 @@ func CreateSQL() error {
 	_, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            account TEXT NOT NULL
+            account TEXT NOT NULL UNIQUE
         )
     `)
 	if err != nil {
@@ -90,7 +90,7 @@ func AddUsersSQL(name string, password string) error {
 	}
 	defer db.Close()
 	_, err = db.Exec(`
-		INSERT INTO users (account) 
+		INSERT OR IGNORE INTO users (account) 
 		VALUES (?)
 	`, "admin")
 	return nil

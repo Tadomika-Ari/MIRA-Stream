@@ -35,8 +35,30 @@ export default function LoginPage() {
     }
   }
 
+  const [running, setRunning] = useState<boolean | null>(null)
+
+  const getHealth = async () => {
+    try {
+      const response = await fetch(`${getApiBase()}/api/health`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
+      setRunning(data.running === 1 || data.running === true)
+    } catch (requestError) {
+      console.error('Pas de reponse de la par du serveur')
+      setRunning(false)
+    }
+  }
+
   useEffect(() => {
     if (selectedUser) loadBiblio()
+  }, [selectedUser])
+
+  useEffect(() => {
+    if (!selectedUser) return
+  
+    getHealth()
+    const id = setInterval(getHealth, 5000)
+    return () => clearInterval(id)
   }, [selectedUser])
 
   useEffect(() => {
@@ -77,7 +99,8 @@ export default function LoginPage() {
           <button className="group flex cursor-pointer items-center gap-3.5 rounded-lg border-0 bg-transparent px-[13px] py-3 text-left text-[13px] font-medium text-[#8c91a3] hover:bg-[#191c29] hover:text-white" type="button" onClick={() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' })}><span className="w-[18px] text-center text-lg text-[#777d91]">▦</span> Ma bibliothèque</button>
           <a className="flex items-center gap-3.5 rounded-lg px-[13px] py-3 text-[13px] font-medium text-[#8c91a3] no-underline hover:bg-[#191c29] hover:text-white" href="https://github.com/Tadomika-Ari/MIRA-Stream" target="_blank" rel="noreferrer"><span className="w-[18px] text-center text-lg text-[#777d91]">◌</span> Projet GitHub</a>
         </nav>
-        <div className="mt-auto text-[9px] leading-[1.8] tracking-[.2em] text-[#424756]">MIRA STREAM <span className="block text-[8px] text-[#696e7c]">LOCAL SERVER</span></div>
+        <div className="mt-auto text-[9px] leading-[1.8] tracking-[.2em] text-[#424756]"><span className="block text-[8px] text-[#696e7c]"></span>
+        <div className="text-[11px] text-[#777e90] max-[760px]:hidden"><i className={`mr-[7px] inline-block size-1.5 rounded-full ${running === null ? 'bg-[#ffb85c] shadow-[0_0_10px_#ffb85c]' : running ? 'bg-[#81d79b] shadow-[0_0_10px_#81d79b]' : 'bg-[#f27d7d] shadow-[0_0_10px_#f27d7d]'}`} /> {running === null ? 'Vérification du serveur...' : running ? 'Serveur en ligne' : 'Serveur hors ligne'}</div></div>
       </aside>
       <main className="min-w-0 flex-1 bg-[radial-gradient(circle_at_76%_0%,rgba(72,75,113,.18),transparent_30%),#080a12]">
         <header className="flex h-[86px] items-center justify-end gap-[18px] border-b border-white/[.05] px-[clamp(22px,5vw,70px)] max-[700px]:h-[72px] max-[700px]:justify-between max-[700px]:px-[18px]"><div className="hidden flex-col font-['Space_Grotesk'] text-[13px] font-bold leading-[1.1] tracking-[.1em] text-white max-[700px]:flex">MIRA<span className="mt-1 text-[8px] tracking-[.3em] text-[#ffba62]">STREAM</span></div><label className="flex h-[38px] w-[min(380px,55vw)] items-center gap-2.5 rounded-[7px] border border-[#252a39] bg-[#111521] px-[13px] text-[#777d90] max-[700px]:max-w-[250px] max-[700px]:flex-1"><span>⌕</span><input className="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#eee] outline-0" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher dans votre bibliothèque" aria-label="Rechercher" />{query && <button className="border-0 bg-transparent text-xl text-[#9da2b1]" type="button" onClick={() => setQuery('')} aria-label="Effacer la recherche">×</button>}</label><UserMenu name={selectedUser.name} onChangeUser={() => setSelectedUser(null)} /></header>
