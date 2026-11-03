@@ -92,7 +92,7 @@ func AddUsersSQL(name string, password string) error {
 	_, err = db.Exec(`
 		INSERT OR IGNORE INTO users (account) 
 		VALUES (?)
-	`, "admin")
+	`, name)
 	return nil
 }
 
