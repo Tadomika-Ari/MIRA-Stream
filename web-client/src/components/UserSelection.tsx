@@ -1,3 +1,5 @@
+import { getApiBase } from '../lib/api'
+
 export type UserProfile = {
   id: string
   name: string
@@ -17,6 +19,27 @@ const defaultProfiles: UserProfile[] = [
   { id: 'sofia', name: 'Sofia', initials: 'S', accent: 'from-[#dca4bb] via-[#8e577e] to-[#382942]', description: 'Profil personnel' },
   { id: 'kids', name: 'Kids', initials: 'K', accent: 'from-[#f2c56f] via-[#d07a54] to-[#633c38]', description: 'Profil enfant' },
 ]
+
+async function getAllUser(): Promise<string[]> {
+  try {
+    const res = await fetch(`${getApiBase()}/api/user/login`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    return data?.all_user ?? []
+  } catch (err) {
+    console.error('Erreur requête:', err)
+    return []
+  }
+}
+
+async function BuildUserFrame() {
+  let AllUeserProfile: UserProfile[]
+  const allUsers = await getAllUser()
+  const numberUser = allUsers.length
+  for (let i = 0; i < numberUser; i++) {
+  }
+  return
+}
 
 export default function UserSelection({ profiles = defaultProfiles, onSelect }: UserSelectionProps) {
   return (
