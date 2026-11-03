@@ -16,6 +16,7 @@ func SimpleHost(cfg srv.Conf) {
 	RequestLogin(cfg)		// send all user (change name or function)
 	RequestDeleteUser(cfg)	// delete user hard coded (change later)
 	RequestHealth(cfg) 		// get health server
+	RequestAddUser(cfg)
 
 	fmt.Println("API lancer")
 	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)
