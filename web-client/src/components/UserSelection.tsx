@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { getApiBase } from '../lib/api'
 
 export type UserProfile = {
@@ -32,16 +33,40 @@ async function getAllUser(): Promise<string[]> {
   }
 }
 
-async function BuildUserFrame() {
-  let AllUeserProfile: UserProfile[]
+async function BuildUserFrame(): Promise<UserProfile[]> {
+  const allUserProfiles: UserProfile[] = []
   const allUsers = await getAllUser()
-  const numberUser = allUsers.length
-  for (let i = 0; i < numberUser; i++) {
+  for (const user of allUsers) {
+    allUserProfiles.push({
+      id: user,
+      name: user.toLowerCase(),
+      initials: user[0]?.toUpperCase() ?? '?',
+      accent: 'from-[#87b9bd] via-[#416b85] to-[#202b4d]',
+      description: 'profil test'
+    })
   }
-  return
+  return allUserProfiles
 }
 
-export default function UserSelection({ profiles = defaultProfiles, onSelect }: UserSelectionProps) {
+export default function UserSelection({ profiles, onSelect }: UserSelectionProps) {
+  const [loadedProfiles, setLoadedProfiles] = useState<UserProfile[]>(profiles ?? defaultProfiles)
+
+  useEffect(() => {
+    if (profiles) {
+      setLoadedProfiles(profiles)
+      return
+    }
+
+    let active = true
+    BuildUserFrame().then((serverProfiles) => {
+      if (active && serverProfiles.length > 0) setLoadedProfiles(serverProfiles)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [profiles])
+
   return (
     <main className="mira-page-in relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080a12] px-5 py-12 font-['DM_Sans'] text-[#f6f3ed] before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_50%_18%,rgba(255,186,98,.1),transparent_32%),linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] before:bg-[size:auto,80px_80px,80px_80px]">
       <section className="relative z-[1] w-full max-w-[930px] text-center">
@@ -53,7 +78,7 @@ export default function UserSelection({ profiles = defaultProfiles, onSelect }: 
         </div>
 
         <div className="flex flex-wrap justify-center gap-x-7 gap-y-9">
-          {profiles.map((profile, index) => (
+          {loadedProfiles.map((profile, index) => (
             <button
               key={profile.id}
               type="button"
@@ -68,7 +93,7 @@ export default function UserSelection({ profiles = defaultProfiles, onSelect }: 
               <span className="mt-1 text-[10px] text-[#6f778a]">{profile.description}</span>
             </button>
           ))}
-          <button type="button" className="mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center" style={{ animationDelay: `${140 + profiles.length * 75}ms` }} onClick={() => {}}>
+          <button type="button" className="mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center" style={{ animationDelay: `${140 + loadedProfiles.length * 75}ms` }} onClick={() => {}}>
             <span className="grid size-[142px] place-items-center rounded-[9px] border border-dashed border-[#3b4254] bg-[#111521] text-[42px] font-light text-[#7b8395] transition group-hover:border-[#ffba62] group-hover:text-[#ffba62]">+</span>
             <strong className="mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#9399a8] transition group-hover:text-[#ffba62]">Ajouter un profil</strong>
             <span className="mt-1 text-[10px] text-[#5f677a]">Bientôt disponible</span>
