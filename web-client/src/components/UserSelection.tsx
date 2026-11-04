@@ -34,15 +34,14 @@ async function getAllUser(): Promise<string[]> {
   }
 }
 
-async function addUser(): Promise<UserProfile[]> {
+async function deleteUser(profileId: string): Promise<boolean> {
   try {
-    const res = await fetch(`${getApiBase()}/api/user/add/${encodeURIComponent("othertest")}`)
+    const res = await fetch(`${getApiBase()}/api/user/delete/${encodeURIComponent(profileId)}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    return data?.all_user ?? []
+    return true
   } catch (err) {
     console.error('Erreur requête:', err)
-    return []
+    return false
   }
 }
 
@@ -64,6 +63,19 @@ async function BuildUserFrame(): Promise<UserProfile[]> {
 export default function UserSelection({ profiles, onSelect }: UserSelectionProps) {
   const [loadedProfiles, setLoadedProfiles] = useState<UserProfile[]>(profiles ?? defaultProfiles)
   const [addUserDrawerOpen, setAddUserDrawerOpen] = useState(false)
+  const [deleteMode, setDeleteMode] = useState(false)
+
+  const handleProfileAction = async (profile: UserProfile) => {
+    if (deleteMode) {
+        if (profile.name.toLowerCase() === 'admin') return
+      const deleted = await deleteUser(profile.id)
+      if (deleted) {
+        setLoadedProfiles((currentProfiles) => currentProfiles.filter((currentProfile) => currentProfile.id !== profile.id))
+      }
+      return
+    }
+    onSelect(profile)
+  }
 
   useEffect(() => {
     if (profiles) {
@@ -96,14 +108,15 @@ export default function UserSelection({ profiles, onSelect }: UserSelectionProps
             <button
               key={profile.id}
               type="button"
-              onClick={() => onSelect(profile)}
-              className="mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center"
+              onClick={() => handleProfileAction(profile)}
+              className={`mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center ${deleteMode ? 'opacity-75 hover:opacity-100' : ''}`}
               style={{ animationDelay: `${140 + index * 75}ms` }}
             >
-              <span className={`grid size-[142px] place-items-center rounded-[9px] bg-gradient-to-br ${profile.accent} font-['Space_Grotesk'] text-[58px] font-semibold text-white shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:scale-[1.03] group-hover:ring-2 group-hover:ring-[#ffba62]`}>
+              <span className={`relative grid size-[142px] place-items-center rounded-[9px] bg-gradient-to-br ${profile.accent} font-['Space_Grotesk'] text-[58px] font-semibold text-white shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:scale-[1.03] group-hover:ring-2 ${deleteMode ? 'group-hover:ring-[#f27d7d]' : 'group-hover:ring-[#ffba62]'}`}>
                 {profile.initials}
+                {deleteMode && profile.name.toLowerCase() !== 'admin' && <span className="absolute right-2 top-2 grid size-6 place-items-center rounded-full bg-[#f27d7d] text-sm font-bold text-[#241011]">×</span>}
               </span>
-              <strong className="mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#dfe0e4] transition group-hover:text-[#ffba62]">{profile.name}</strong>
+              <strong className={`mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#dfe0e4] transition ${deleteMode ? 'group-hover:text-[#f27d7d]' : 'group-hover:text-[#ffba62]'}`}>{profile.name}</strong>
               <span className="mt-1 text-[10px] text-[#6f778a]">{profile.description}</span>
             </button>
           ))}
@@ -116,10 +129,26 @@ export default function UserSelection({ profiles, onSelect }: UserSelectionProps
             {addUserDrawerOpen && (
               <AddUserMenu
                 onChangeUser={() => setAddUserDrawerOpen(false)}
+                onUserAdded={() => {
+                  BuildUserFrame().then((serverProfiles) => {
+                    setLoadedProfiles(serverProfiles)
+                    setAddUserDrawerOpen(false)
+                  })
+                }}
               />
             )}
           </div>
         </div>
+
+        <button
+          type="button"
+          aria-pressed={deleteMode}
+          onClick={() => setDeleteMode((active) => !active)}
+          className={`fixed bottom-6 right-6 z-10 inline-flex cursor-pointer items-center gap-2 rounded-[5px] border px-3 py-2 text-xs font-medium transition ${deleteMode ? 'border-[#f27d7d] bg-[#f27d7d]/10 text-[#f27d7d]' : 'border-[#343b4d] bg-[#111521] text-[#9ba2b2] hover:border-[#f27d7d] hover:text-[#f27d7d]'}`}
+        >
+          <span aria-hidden="true">{deleteMode ? '×' : '−'}</span>
+          {deleteMode ? 'Quitter le mode suppression' : 'Supprimer un profil'}
+        </button>
 
         <p className="mt-16 font-['Space_Grotesk'] text-[9px] tracking-[.2em] text-[#424958]">VOTRE SERVEUR · VOS PROFILS</p>
       </section>

@@ -212,7 +212,7 @@ func GetUsers() []string {
 	return list_users
 }
 
-func DeleteUser() []string {
+func DeleteUser(name string) []string {
 	path, err := GetDatabasePath()
 	if err != nil {
 		fmt.Println("ERROR with get database path ")
@@ -226,7 +226,7 @@ func DeleteUser() []string {
 	defer db.Close()
 	_, err = db.Exec(`
 		DELETE FROM users WHERE account == (?) 
-	`, "admin")
+	`, name)
 
 	var list_users []string
 	list_users = GetUsers()
