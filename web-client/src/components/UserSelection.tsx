@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getApiBase } from '../lib/api'
+import AddUserMenu from './AddUserDrawer'
 
 export type UserProfile = {
   id: string
@@ -33,6 +34,18 @@ async function getAllUser(): Promise<string[]> {
   }
 }
 
+async function addUser(): Promise<UserProfile[]> {
+  try {
+    const res = await fetch(`${getApiBase()}/api/user/add/${encodeURIComponent("othertest")}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    return data?.all_user ?? []
+  } catch (err) {
+    console.error('Erreur requête:', err)
+    return []
+  }
+}
+
 async function BuildUserFrame(): Promise<UserProfile[]> {
   const allUserProfiles: UserProfile[] = []
   const allUsers = await getAllUser()
@@ -50,6 +63,7 @@ async function BuildUserFrame(): Promise<UserProfile[]> {
 
 export default function UserSelection({ profiles, onSelect }: UserSelectionProps) {
   const [loadedProfiles, setLoadedProfiles] = useState<UserProfile[]>(profiles ?? defaultProfiles)
+  const [addUserDrawerOpen, setAddUserDrawerOpen] = useState(false)
 
   useEffect(() => {
     if (profiles) {
@@ -93,11 +107,18 @@ export default function UserSelection({ profiles, onSelect }: UserSelectionProps
               <span className="mt-1 text-[10px] text-[#6f778a]">{profile.description}</span>
             </button>
           ))}
-          <button type="button" className="mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center" style={{ animationDelay: `${140 + loadedProfiles.length * 75}ms` }} onClick={() => {}}>
-            <span className="grid size-[142px] place-items-center rounded-[9px] border border-dashed border-[#3b4254] bg-[#111521] text-[42px] font-light text-[#7b8395] transition group-hover:border-[#ffba62] group-hover:text-[#ffba62]">+</span>
-            <strong className="mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#9399a8] transition group-hover:text-[#ffba62]">Ajouter un profil</strong>
-            <span className="mt-1 text-[10px] text-[#5f677a]">Bientôt disponible</span>
-          </button>
+          <div className="relative">
+            <button type="button" className="mira-fade-up group flex w-[150px] cursor-pointer flex-col items-center border-0 bg-transparent text-center" style={{ animationDelay: `${140 + loadedProfiles.length * 75}ms` }} onClick={() => setAddUserDrawerOpen(true)}>
+              <span className="grid size-[142px] place-items-center rounded-[9px] border border-dashed border-[#3b4254] bg-[#111521] text-[42px] font-light text-[#7b8395] transition group-hover:border-[#ffba62] group-hover:text-[#ffba62]">+</span>
+              <strong className="mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#9399a8] transition group-hover:text-[#ffba62]">Ajouter un profil</strong>
+              <span className="mt-1 text-[10px] text-[#5f677a]">Bientôt disponible</span>
+            </button>
+            {addUserDrawerOpen && (
+              <AddUserMenu
+                onChangeUser={() => setAddUserDrawerOpen(false)}
+              />
+            )}
+          </div>
         </div>
 
         <p className="mt-16 font-['Space_Grotesk'] text-[9px] tracking-[.2em] text-[#424958]">VOTRE SERVEUR · VOS PROFILS</p>
