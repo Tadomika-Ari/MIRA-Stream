@@ -15,7 +15,7 @@ type request_delete_user struct {
 }
 
 func RequestDeleteUser(cfg srv.Conf) {
-	http.HandleFunc("/api/user/login/delete", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/user/delete/{userName}", func(w http.ResponseWriter, r *http.Request) {
 		setCORSHeaders(w, r)
 
 		if r.Method == http.MethodOptions {
@@ -26,7 +26,9 @@ func RequestDeleteUser(cfg srv.Conf) {
 		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 
-			list_user := core.DeleteUser()
+			userName := r.PathValue("userName")
+			fmt.Println("SUPPRESSION RECU : ", userName)
+			list_user := core.DeleteUser(userName)
 
 			var request_list request_delete_user
 

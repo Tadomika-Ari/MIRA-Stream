@@ -1,30 +1,46 @@
 import { FormEvent, useState } from 'react'
+import { getApiBase } from '../lib/api'
 
 type UserMenuProps = {
   name?: string
   image?: string
   onChangeUser: () => void
+  onUserAdded: () => void
 }
 
-export default function AddUserMenu({}: UserMenuProps) {
+async function addUser(name: string): Promise<string[]> {
+  try {
+    const res = await fetch(`${getApiBase()}/api/user/add/${encodeURIComponent(name)}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    return data?.all_user ?? []
+  } catch (err) {
+    console.error('Erreur requête:', err)
+    return []
+  }
+}
+
+export default function AddUserMenu({ onChangeUser, onUserAdded }: UserMenuProps) {
   const [profileName, setProfileName] = useState('')
 
-  const handleAction = (action: () => void) => {
-    action()
-  }
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const trimmedName = profileName.trim()
     if (!trimmedName) return
-
-    // Ajouter l'appel API avec trimmedName ici.
+    const users = await addUser(trimmedName)
+    if (users.length > 0) onUserAdded()
   }
 
   return (
     <div className="relative">
-      <div className="absolute right-0 top-[46px] z-20 w-[254px] overflow-hidden rounded-[8px] border border-[#343b4d] bg-[#111521] shadow-[0_18px_45px_rgba(0,0,0,.45)]">
+      <button
+        type="button"
+        aria-label="Fermer"
+        className="fixed inset-0 z-10 cursor-default border-0 bg-black/35 p-0 backdrop-blur-[3px]"
+        onClick={onChangeUser}
+      />
+      <div className="fixed left-1/2 top-1/2 z-20 w-[254px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[8px] border border-[#343b4d] bg-[#111521] shadow-[0_18px_45px_rgba(0,0,0,.45)]">
         <form className="grid gap-3 p-3" onSubmit={handleSubmit}>
           <div>
             <p className="text-xs font-medium text-white">Ajouter un profil</p>
