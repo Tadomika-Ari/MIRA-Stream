@@ -253,6 +253,10 @@ func GetUsers() []UserConfig {
 }
 
 func DeleteUser(name string) []UserConfig {
+	if name == "admin" {
+		fmt.Println("Admin delete cancel")
+		return nil
+	}
 	path, err := GetDatabasePath()
 	if err != nil {
 		fmt.Println("ERROR with get database path ")
