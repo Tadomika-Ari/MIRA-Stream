@@ -8,6 +8,7 @@ export type UserProfile = {
   initials: string
   accent: string
   description: string
+  pp?: string
 }
 
 type UserReceiveInfo = {
@@ -60,7 +61,10 @@ async function BuildUserFrame(): Promise<UserProfile[]> {
       name: user.name,
       initials: user.name[0]?.toUpperCase() ?? '?',
       accent: 'from-[#87b9bd] via-[#416b85] to-[#202b4d]',
-      description: user.description
+      description: user.description,
+      pp: user.pp && user.pp !== 'default'
+        ? `${getApiBase()}/api/user/pp/${encodeURIComponent(user.name)}`
+        : undefined
     })
     console.log(allUserProfiles)
   }
@@ -121,6 +125,16 @@ export default function UserSelection({ profiles, onSelect }: UserSelectionProps
             >
               <span className={`relative grid size-[142px] place-items-center rounded-[9px] bg-gradient-to-br ${profile.accent} font-['Space_Grotesk'] text-[58px] font-semibold text-white shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:scale-[1.03] group-hover:ring-2 ${deleteMode ? 'group-hover:ring-[#f27d7d]' : 'group-hover:ring-[#ffba62]'}`}>
                 {profile.initials}
+                {profile.pp && (
+                  <img
+                    src={profile.pp}
+                    alt=""
+                    className="absolute inset-0 size-full rounded-[9px] object-cover"
+                    onError={(event) => {
+                      event.currentTarget.style.display = 'none'
+                    }}
+                  />
+                )}
                 {deleteMode && profile.name.toLowerCase() !== 'admin' && <span className="absolute right-2 top-2 grid size-6 place-items-center rounded-full bg-[#f27d7d] text-sm font-bold text-[#241011]">×</span>}
               </span>
               <strong className={`mt-4 font-['Space_Grotesk'] text-[15px] font-medium text-[#dfe0e4] transition ${deleteMode ? 'group-hover:text-[#f27d7d]' : 'group-hover:text-[#ffba62]'}`}>{profile.name}</strong>

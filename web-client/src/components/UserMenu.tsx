@@ -8,7 +8,7 @@ type UserMenuProps = {
 }
 
 export default function UserMenu({
-  name = 'Mira Stream',
+  name = 'Profil',
   image = '',
   onChangeUser,
 }: UserMenuProps) {
@@ -71,7 +71,7 @@ export default function UserMenu({
           </div>
         </div>
       )}
-      <UserProfilDrawer name={name} open={profileDrawerOpen} onClose={() => setProfileDrawerOpen(false)} />
+      <UserProfilDrawer name={name} image={image} open={profileDrawerOpen} onClose={() => setProfileDrawerOpen(false)} />
     </div>
   )
 }

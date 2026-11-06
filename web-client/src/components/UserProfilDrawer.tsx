@@ -4,9 +4,12 @@ type UserProfilDrawerProps = {
   open: boolean
   onClose: () => void
   name?: string
+  image?: string
 }
 
-export default function UserProfilDrawer({ open, onClose, name = 'Mira Stream' }: UserProfilDrawerProps) {
+export default function UserProfilDrawer({ open, onClose, name = 'Mira Stream', image = '' }: UserProfilDrawerProps) {
+  const initials = name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase()
+
   if (!open) {
     return null
   }
@@ -37,8 +40,8 @@ export default function UserProfilDrawer({ open, onClose, name = 'Mira Stream' }
 
         <div className="grid gap-6 px-[30px] pb-[30px] pt-[26px] max-[700px]:px-[18px]">
           <div className="flex items-center gap-4 rounded-[7px] border border-[#252b3b] bg-[#111521] p-4">
-            <div className="grid size-16 place-items-center rounded-full border border-[#ffba62] bg-[#1d202d] font-['Space_Grotesk'] text-lg font-bold text-[#ffca85] shadow-[0_0_24px_rgba(255,186,98,.12)]">
-              MS
+            <div className="grid size-16 place-items-center overflow-hidden rounded-full border border-[#ffba62] bg-[#1d202d] font-['Space_Grotesk'] text-lg font-bold text-[#ffca85] shadow-[0_0_24px_rgba(255,186,98,.12)]">
+              {image ? <img className="size-full object-cover" src={image} alt={`Avatar de ${name}`} /> : initials}
             </div>
             <div>
               <p className="font-['Space_Grotesk'] text-base font-semibold text-white">{name}</p>
