@@ -6,3 +6,13 @@ database = "database/database.db"
 [folder]
 video_f = "test-folder"
 webtoon_f = "test"
+
+[management]
+[[management.users]]
+name = "admin"
+description = "profil admin"
+pp = "config/users/tea-girl.png"
+[[management.users]]
+name = "toto"
+description = "juste toto"
+pp = "default"

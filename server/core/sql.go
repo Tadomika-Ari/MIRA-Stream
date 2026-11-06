@@ -8,6 +8,12 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+type UserConfig struct {
+    Name        string `toml:"name"`
+    Description string `toml:"description"`
+    PP          string `toml:"pp"`
+}
+
 type conf struct {
 	Folder struct {
 		VideoF   string `toml:"video_f"`
@@ -20,6 +26,9 @@ type conf struct {
 	} `toml:"server"`
 	Path        string
 	StartStatut int
+	Management struct {
+		Users []UserConfig `toml:"users"`
+	} `toml:"management"`
 }
 
 type Conf = conf
