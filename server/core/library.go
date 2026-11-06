@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	srv "server/server"
 )
 
 type Biblio struct {
@@ -17,7 +15,7 @@ type Biblio struct {
 	PathEpisode []string `json:"pathepisode"`
 }
 
-func get_nb_folder(cfg srv.Conf) int {
+func get_nb_folder(cfg Conf) int {
 	var nb int
 
 	nb = 0
@@ -34,7 +32,7 @@ func get_nb_folder(cfg srv.Conf) int {
 	return nb
 }
 
-func Check_Folder(cfg srv.Conf, name string) Biblio {
+func Check_Folder(cfg Conf, name string) Biblio {
 	content, err := os.ReadDir(filepath.Join(cfg.Folder.VideoF, name))
 	var nb_of_season int
 	var nb_of_episode int
@@ -71,7 +69,7 @@ func Check_Folder(cfg srv.Conf, name string) Biblio {
 	}
 }
 
-func CreateBiblio(cfg srv.Conf) []Biblio {
+func CreateBiblio(cfg Conf) []Biblio {
 	var nb_of_folder int
 
 	entries, err := os.ReadDir(cfg.Folder.VideoF)
@@ -96,7 +94,7 @@ func CreateBiblio(cfg srv.Conf) []Biblio {
 	return folders
 }
 
-func RegroupVideo(cfg srv.Conf) {
+func RegroupVideo(cfg Conf) {
 	CreateBiblio(cfg)
 	fmt.Println("Regroup Video")
 }

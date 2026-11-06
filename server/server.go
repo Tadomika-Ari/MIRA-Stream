@@ -4,22 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	core "server/server/core"
 
 	"github.com/BurntSushi/toml"
 )
 
-type conf struct {
-	Folder struct {
-		VideoF   string `toml:"video_f"`
-		WebtoonF string `toml:"webtoon_f"`
-	} `toml:"folder"`
-	Server struct {
-		Port int    `toml:"port"`
-		Host string `toml:"host"`
-	} `toml:"server"`
-	Path        string
-	StartStatut int
-}
+type conf = core.Conf
 
 type Conf = conf
 
@@ -37,6 +27,20 @@ func ServerStart() Conf {
 		log.Fatalf("error toml")
 	}
 	fmt.Printf("Debug: %+v\n", cfg)
+	err = core.CreateSQL()
+	if err != nil {
+		log.Fatalf("error with create database")
+	}
+	err = core.AddBibloInfoSQL()
+	if err != nil {
+		log.Fatalf("error add biblio in database")
+	}
+	for _, user := range cfg.Management.Users {
+		err = core.InitUsersSQL(user.Name, user.Name, user.Description, user.PP)
+		if err != nil {
+			log.Fatalf("Error with add first user")
+		}	
+	}
 	fmt.Println("Serveur Pret")
 	return cfg
 }

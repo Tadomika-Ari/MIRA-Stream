@@ -55,7 +55,7 @@ func anilistError(response anilistResponse) error {
 	return fmt.Errorf("AniList: %s", response.Errors[0].Message)
 }
 
-func JikanGet(info *info, name string) info {
+func AnilistGet(info *info, name string) info {
 	searchName := strings.ReplaceAll(name, "-", " ")
 	requestBody, err := json.Marshal(anilistRequest{
 		Query:     anilistQuery,

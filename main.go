@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 	"server/server"
-	cmd "server/server/terminal_cmd"
 	api "server/server/api"
-	ext "server/server/external"
+	core "server/server/core"
+	cmd "server/server/terminal_cmd"
 )
 
 func main() {
@@ -39,12 +39,27 @@ func main() {
 			continue
 		}
 		if rep == "start" && cfg.StartStatut == 0 {
-			go api.SimpleHost(cfg)
 			cfg.StartStatut = 1
+			go api.SimpleHost(cfg)
 			continue
 		}
 		if rep == "test" {
-			ext.JikanInfo("attack-on-titan")
+			if err := core.TakeInfoSQL(); err != nil {
+				fmt.Printf("Erreur SQL: %v\n", err)
+			}
+			continue
+		}
+		if rep == "all_users" {
+			core.GetAllUsersSQL()
+			continue
+		}
+		if rep == "status" {
+			if cfg.StartStatut == 1 {
+				println("Server online")
+			}
+			if cfg.StartStatut == 0 {
+				fmt.Println("Server offline")
+			}
 			continue
 		}
 		if rep == "cd" {

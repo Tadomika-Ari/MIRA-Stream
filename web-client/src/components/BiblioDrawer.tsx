@@ -82,7 +82,7 @@ export default function BiblioDrawer({ biblio, open, onClose, onPlayEpisode }: B
   const fetchInfo = async () => {
     try {
       const animeName = biblio.name ?? biblio.Name ?? ''
-      const res = await fetch(`${getApiBase()}/jikan/${encodeURIComponent(animeName)}`)
+      const res = await fetch(`${getApiBase()}/anilist/${encodeURIComponent(animeName)}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (!data?.data?.[0]) return
