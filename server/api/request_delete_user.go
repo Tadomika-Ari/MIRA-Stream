@@ -11,7 +11,7 @@ import (
 )
 
 type request_delete_user struct {
-	AllUser []string `json:"all_user"`
+	AllUser []core.UserConfig `json:"all_user"`
 }
 
 func RequestDeleteUser(cfg srv.Conf) {

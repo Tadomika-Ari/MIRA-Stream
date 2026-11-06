@@ -11,7 +11,7 @@ import (
 )
 
 type request_user struct {
-	AllUser []string `json:"all_user"`
+	AllUser []core.UserConfig `json:"all_user"`
 }
 
 func RequestLogin(cfg srv.Conf) {

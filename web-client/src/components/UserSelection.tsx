@@ -10,6 +10,12 @@ export type UserProfile = {
   description: string
 }
 
+type UserReceiveInfo = {
+  name: string
+  description: string
+  pp: string
+}
+
 type UserSelectionProps = {
   profiles?: UserProfile[]
   onSelect: (profile: UserProfile) => void
@@ -22,7 +28,7 @@ const defaultProfiles: UserProfile[] = [
   { id: 'kids', name: 'Kids', initials: 'K', accent: 'from-[#f2c56f] via-[#d07a54] to-[#633c38]', description: 'Profil enfant' },
 ]
 
-async function getAllUser(): Promise<string[]> {
+async function getAllUser(): Promise<UserReceiveInfo[]> {
   try {
     const res = await fetch(`${getApiBase()}/api/user/login`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -50,12 +56,13 @@ async function BuildUserFrame(): Promise<UserProfile[]> {
   const allUsers = await getAllUser()
   for (const user of allUsers) {
     allUserProfiles.push({
-      id: user,
-      name: user.toLowerCase(),
-      initials: user[0]?.toUpperCase() ?? '?',
+      id: user.name,
+      name: user.name,
+      initials: user.name[0]?.toUpperCase() ?? '?',
       accent: 'from-[#87b9bd] via-[#416b85] to-[#202b4d]',
-      description: 'profil test'
+      description: user.description
     })
+    console.log(allUserProfiles)
   }
   return allUserProfiles
 }

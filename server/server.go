@@ -36,7 +36,7 @@ func ServerStart() Conf {
 		log.Fatalf("error add biblio in database")
 	}
 	for _, user := range cfg.Management.Users {
-		err = core.AddUsersSQL(user.Name, user.Name)
+		err = core.InitUsersSQL(user.Name, user.Name, user.Description, user.PP)
 		if err != nil {
 			log.Fatalf("Error with add first user")
 		}	

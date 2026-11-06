@@ -9,9 +9,9 @@ import (
 )
 
 type UserConfig struct {
-    Name        string `toml:"name"`
-    Description string `toml:"description"`
-    PP          string `toml:"pp"`
+	Name        string `toml:"name" json:"name"`
+	Description string `toml:"description" json:"description"`
+	PP          string `toml:"pp" json:"pp"`
 }
 
 type conf struct {
@@ -26,7 +26,7 @@ type conf struct {
 	} `toml:"server"`
 	Path        string
 	StartStatut int
-	Management struct {
+	Management  struct {
 		Users []UserConfig `toml:"users"`
 	} `toml:"management"`
 }
@@ -57,7 +57,9 @@ func CreateSQL() error {
 	_, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            account TEXT NOT NULL UNIQUE
+            account TEXT NOT NULL UNIQUE,
+			description TEXT,
+			pp TEXT
         )
     `)
 	if err != nil {
@@ -105,6 +107,24 @@ func AddUsersSQL(name string, password string) error {
 	return nil
 }
 
+func InitUsersSQL(name string, password string, description string, pp string) error {
+	path, err := GetDatabasePath()
+	if err != nil {
+		fmt.Println("ERROR with get database path ")
+		return err
+	}
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(`
+		INSERT OR IGNORE INTO users (account, description, pp)
+		VALUES (?, ?, ?)
+	`, name, description, pp)
+	return err
+}
+
 func GetAllUsersSQL() error {
 	path, err := GetDatabasePath()
 	if err != nil {
@@ -126,13 +146,14 @@ func GetAllUsersSQL() error {
 	for rows.Next() {
 		var id int
 		var account string
-		if rows.Err() != nil {
-			return rows.Err()
+		var description string
+		var pp string
+		if err := rows.Scan(&id, &account, &description, &pp); err != nil {
+			return err
 		}
-		rows.Scan(&id, &account)
-		println(id, account)
+		println(id, account, description, pp)
 	}
-	return nil
+	return rows.Err()
 }
 
 func AddBibloInfoSQL() error {
@@ -184,7 +205,7 @@ func TakeInfoSQL() error {
 	return nil
 }
 
-func GetUsers() []string {
+func GetUsers() []UserConfig {
 	path, err := GetDatabasePath()
 	if err != nil {
 		fmt.Println("ERROR with get database path ")
@@ -205,23 +226,33 @@ func GetUsers() []string {
 	}
 	defer rows.Close()
 
-	var list_users []string
+	var list_users []UserConfig
 
 	for rows.Next() {
 		var id int
 		var account string
-		if rows.Err() != nil {
+		var description string
+		var pp string
+		var tmp UserConfig
+		if err := rows.Scan(&id, &account, &description, &pp); err != nil {
 			fmt.Println("ERROR DEBUG 4")
 			return nil
 		}
-		rows.Scan(&id, &account)
+		tmp.Name = account
+		tmp.Description = description
+		tmp.PP = pp
+
 		println(id, account)
-		list_users = append(list_users, account)
+		list_users = append(list_users, tmp)
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Println("ERROR DEBUG 5")
+		return nil
 	}
 	return list_users
 }
 
-func DeleteUser(name string) []string {
+func DeleteUser(name string) []UserConfig {
 	path, err := GetDatabasePath()
 	if err != nil {
 		fmt.Println("ERROR with get database path ")
@@ -237,7 +268,7 @@ func DeleteUser(name string) []string {
 		DELETE FROM users WHERE account == (?) 
 	`, name)
 
-	var list_users []string
+	var list_users []UserConfig
 	list_users = GetUsers()
 	return list_users
 }
