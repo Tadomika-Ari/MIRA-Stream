@@ -23,3 +23,15 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+    
+    - name: Create Binary
+      run: go build -o mira-stream .
+    
+    # 3. Sauvegarde du binaire à la toute fin du workflow
+    - name: Archivage du binaire (Artifact)
+      uses: actions/upload-artifact@v4
+      with:
+        name: mira-stream-binary   # Le nom du dossier zip à télécharger sur GitHub
+        path: mira-stream       # LE CHEMIN VERS VOTRE FICHIER BINAIRE GÉNÉRÉ
+        retention-days: 14                  # Conservé pendant 7 jours avant suppression auto
+  
