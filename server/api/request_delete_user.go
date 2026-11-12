@@ -7,11 +7,11 @@ import (
 	"time"
 
 	srv "server/server"
-	core "server/server/core"
+	sql "server/server/core/sql"
 )
 
 type request_delete_user struct {
-	AllUser []core.UserConfig `json:"all_user"`
+	AllUser []sql.UserConfig `json:"all_user"`
 }
 
 func RequestDeleteUser(cfg srv.Conf) {
@@ -28,7 +28,7 @@ func RequestDeleteUser(cfg srv.Conf) {
 
 			userName := r.PathValue("userName")
 			fmt.Println("SUPPRESSION RECU : ", userName)
-			list_user := core.DeleteUser(userName)
+			list_user := sql.DeleteUser(userName)
 
 			var request_list request_delete_user
 

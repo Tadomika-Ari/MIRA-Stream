@@ -9,15 +9,16 @@ import (
 
 func SimpleHost(cfg srv.Conf) {
 	var port string
+	RequestHealth(cfg) 		// get health server
 	RequestFolder(cfg) 		// For take folder
 	RequestFile(cfg) 		// take file
 	RequestLibrary(cfg) 	// create library
 	RequestAnilist(cfg) 	// get info api Anilist
-	RequestLogin(cfg)		// send all user (change name or function)
+	RequestLogin(cfg)		// send all user for login
 	RequestDeleteUser(cfg)	// delete user hard coded (change later)
-	RequestHealth(cfg) 		// get health server
 	RequestAddUser(cfg)
 	RequestPPUser(cfg)
+	RequestUser(cfg)
 
 	fmt.Println("API lancer")
 	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)

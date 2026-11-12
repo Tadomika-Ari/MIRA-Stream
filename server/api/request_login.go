@@ -7,11 +7,11 @@ import (
 	"time"
 
 	srv "server/server"
-	core "server/server/core"
+	sql "server/server/core/sql"
 )
 
 type request_user struct {
-	AllUser []core.UserConfig `json:"all_user"`
+	AllUser []sql.UserConfig `json:"all_user"`
 }
 
 func RequestLogin(cfg srv.Conf) {
@@ -25,11 +25,8 @@ func RequestLogin(cfg srv.Conf) {
 		switch r.Method {
 		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
-
-			list_user := core.GetUsers()
-
+			list_user := sql.GetUsers()
 			var request_list request_user
-
 			request_list.AllUser = list_user
 			fmt.Println("DEBUG PRINT :", request_list)
 

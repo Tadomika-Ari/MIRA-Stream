@@ -6,7 +6,7 @@ import (
 	"os"
 	"server/server"
 	api "server/server/api"
-	core "server/server/core"
+	sql "server/server/core/sql"
 	cmd "server/server/terminal_cmd"
 )
 
@@ -44,13 +44,13 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			if err := core.TakeInfoSQL(); err != nil {
+			if err := sql.TakeInfoSQL(); err != nil {
 				fmt.Printf("Erreur SQL: %v\n", err)
 			}
 			continue
 		}
 		if rep == "all_users" {
-			core.GetAllUsersSQL()
+			sql.GetAllUsersSQL()
 			continue
 		}
 		if rep == "status" {
