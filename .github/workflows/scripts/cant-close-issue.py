@@ -19,4 +19,4 @@ except:
 
 
 issue = repo.get_issue(issue_number)
-issue.create_comment(f"You are not assignees to this issue. You cant close it")
+issue.create_comment("You are not assigned to this issue, so you can't close it.")
