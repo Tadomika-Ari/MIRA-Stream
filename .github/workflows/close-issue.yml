@@ -1,0 +1,27 @@
+name: Close Issue
+on:
+    issue_comment:
+        types:
+            - created
+
+permissions:
+    issues:
+        write
+jobs:
+    check_comment:
+        if: contains(github.event.comment.body, '/close') && contains(github.event.issue.assignees.*.login, github.event.comment.user.login)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: ./.github/workflows/setup/pygithub
+
+            - name: Enstaller PyGithub
+              run: pip install PyGithub
+
+            - name: Exécuter le script Python
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                REPO_NAME: ${{ github.repository }}
+                ISSUE_NUMBER: ${{ github.event.issue.number }}
+                COMMENT_BODY: ${{ github.event.comment.body }}
+              run: python .github/workflows/scripts/close-issue.py
