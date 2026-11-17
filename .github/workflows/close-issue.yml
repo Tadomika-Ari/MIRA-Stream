@@ -9,10 +9,10 @@ permissions:
         write
 jobs:
     check_comment:
-        if: contains(github.event.comment.body, '/close') && contains(github.event.issue.assignees.*.login, github.event.comment.user.login)
+        if: contains(github.event.comment.body, '/close-issue') && contains(github.event.issue.assignees.*.login, github.event.comment.user.login)
         runs-on: ubuntu-latest
         steps:
-            - name: Réagir 👀 au commentaire
+            - name: 👀 reaction
               env:
                 GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
@@ -22,13 +22,38 @@ jobs:
                 -f content=eyes
 
             - uses: actions/checkout@v7
-            - name: Installer PyGithub
+            - name: Instal PyGithub
               run: pip install -r .github/workflows/scripts/PyGithub-requirement.txt
 
-            - name: Exécuter le script Python
+            - name: Python script
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 REPOSITORY: ${{ github.repository }}
                 ISSUE_NUMBER: ${{ github.event.issue.number }}
                 COMMENT_BODY: ${{ github.event.comment.body }}
               run: python .github/workflows/scripts/close-issue.py
+
+    reject_comment:
+        if: contains(github.event.comment.body, '/close-issue') && !contains(github.event.issue.assignees.*.login, github.event.comment.user.login)
+        runs-on: ubuntu-latest
+        steps:
+            - name: 👀 reaction
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                gh api \
+                --method POST \
+                repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+                -f content=eyes
+            
+            - uses: actions/checkout@v7
+            - name: Instal PyGithub
+              run: pip install -r .github/workflows/scripts/PyGithub-requirement.txt
+
+            - name: Python script
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                REPOSITORY: ${{ github.repository }}
+                ISSUE_NUMBER: ${{ github.event.issue.number }}
+                COMMENT_BODY: ${{ github.event.comment.body }}
+              run: python .github/workflows/scripts/cant-close-issue.py
