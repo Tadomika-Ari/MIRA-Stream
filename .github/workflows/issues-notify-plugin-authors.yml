@@ -18,11 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: $/.github/workflows/setup/pygithub
+      - name: Instal PyGithub
+        run: pip install -r .github/workflows/scripts/PyGithub-requirement.txt
 
       - name: Notify Authors
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.issue-number || github.event.issue.number }}
-        run: python3 .github/workflows/scripts/issues-notify-plugin-authors.py
+        run: python .github/workflows/scripts/issues-notify-plugin-authors.py
