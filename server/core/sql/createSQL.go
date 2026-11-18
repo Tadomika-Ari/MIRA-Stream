@@ -45,6 +45,7 @@ func CreateSQL() error {
 		CREATE TABLE IF NOT EXISTS user_anime (
 			userid INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			animeid INTEGER NOT NULL REFERENCES anime(id) ON DELETE CASCADE,
+			favorite BOOL,
 			status TEXT,
 			timestamp INTEGER,
 			PRIMARY KEY (userid, animeid)

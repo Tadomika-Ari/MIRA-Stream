@@ -44,8 +44,11 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			if err := sql.TakeInfoSQL(); err != nil {
-				fmt.Printf("Erreur SQL: %v\n", err)
+			if err := sql.AddUsersAnime("Wistoria", "admin"); err != nil {
+				fmt.Printf("Error AddUserAnime: %v\n", err)
+			}
+			if err := sql.GetAnimeUserInfo("admin"); err != nil {
+				fmt.Printf("Error SQL: %v\n", err)
 			}
 			continue
 		}
