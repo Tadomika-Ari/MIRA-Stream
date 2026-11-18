@@ -65,6 +65,16 @@ func main() {
 			}
 			continue
 		}
+		if rep == "test_user" {
+			if argument == "" {
+				fmt.Println("No argument")
+				continue
+			}
+			if err := sql.GetAnimeUserInfo(argument); err != nil {
+				fmt.Println("ERROR : ", err)
+			}
+			continue
+		}
 		if rep == "all_users" {
 			sql.GetAllUsersSQL()
 			continue
