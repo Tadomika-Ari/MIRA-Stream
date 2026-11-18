@@ -2,8 +2,9 @@ package sql
 
 import (
 	"database/sql"
-	"fmt"
 	"errors"
+	"fmt"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -26,11 +27,11 @@ func GetAnimeIdName(name string) int {
 		SELECT id FROM anime WHERE animeName = ?
 	`, name).Scan(&id)
 	if err == sql.ErrNoRows {
-		println("Id not found, GetAnimeIdName")
+		fmt.Println("Id not found, GetAnimeIdName")
 		return -1
 	}
 	if err != nil {
-		println("ERROR with GetAnimeIdName")
+		fmt.Printf("ERROR with GetAnimeIdName: %v\n", err)
 		return -1
 	}
 	return id
@@ -55,11 +56,11 @@ func GetUserIdName(name string) int {
 		SELECT id FROM users WHERE account = ?
 	`, name).Scan(&id)
 	if err == sql.ErrNoRows {
-		println("Id not found for UserIdName")
+		fmt.Println("Id not found for UserIdName")
 		return -1
 	}
 	if err != nil {
-		println("ERROR with GetAnimeIdName")
+		fmt.Printf("ERROR with GetUserIdName: %v\n", err)
 		return -1
 	}
 	return id
@@ -82,8 +83,8 @@ func AddUsersAnime(animeName string, userName string) error {
 		return errors.New("id user or id anime not found")
 	}
 	_, err = db.Exec(`
-		INSERT OR IGNORE INTO users (userid, animeid, favorite, status, timestamp) 
+		INSERT OR IGNORE INTO user_anime (userid, animeid, favorite, status, timestamp)
 		VALUES (?, ?, ?, ?, ?)
 	`, idUser, idAnime, true, "test", 0)
-	return nil
+	return err
 }
