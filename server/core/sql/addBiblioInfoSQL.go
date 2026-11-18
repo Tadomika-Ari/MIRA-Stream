@@ -20,6 +20,6 @@ func AddBibloInfoSQL() error {
 	_, err = db.Exec(`
 		INSERT INTO anime (animeName, nsfw) 
 		VALUES (?, ?)
-	`, "Wisteria", false)
+	`, "Wistoria", false)
 	return nil
 }
