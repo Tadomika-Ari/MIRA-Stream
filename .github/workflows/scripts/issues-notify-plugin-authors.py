@@ -19,8 +19,6 @@ except:
 
 
 issue = repo.get_issue(issue_number)
-body = issue.body
-lines = body.splitlines()
 author = "Tadomika-Ari"
 
 if author:
