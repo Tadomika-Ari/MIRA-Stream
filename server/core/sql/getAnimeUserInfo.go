@@ -19,13 +19,13 @@ func GetAnimeUserInfo(name string) error {
 		return err
 	}
 	defer db.Close()
-	var userId int
-	userId = GetUserIdName(name)
+
+	userId := GetUserIdName(name)
 	if userId == -1 {
 		return errors.New("userid not found in getAnimeUserInfo")
 	}
 	rows, err := db.Query(`
-		SELECT * FROM user_anime WHERE userid == ?
+		SELECT * FROM user_anime WHERE userid = ?
 	`, userId)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func GetAnimeUserInfo(name string) error {
 	defer rows.Close()
 	for rows.Next() {
 		var userid int
-		var animeid string
+		var animeid int
 		var favorite bool
 		var status string
 		var timestamp int
@@ -41,7 +41,7 @@ func GetAnimeUserInfo(name string) error {
 			return rows.Err()
 		}
 		rows.Scan(&userid, &animeid, &favorite, &status, &timestamp)
-		println(userid, animeid, favorite, status, timestamp)
+		fmt.Println(userid, animeid, favorite, status, timestamp)
 	}
 	return nil
 }

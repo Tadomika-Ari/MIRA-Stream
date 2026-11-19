@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"server/server"
+	"strings"
 	api "server/server/api"
 	sql "server/server/core/sql"
 	cmd "server/server/terminal_cmd"
@@ -14,14 +15,22 @@ func main() {
 	fmt.Println("Démarage du serveur...")
 	cfg := server.ServerStart()
 	fmt.Println("Terminal du serveur :")
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		var rep string
-		var path string
 		fmt.Print("$MIRA-Stream> ")
-		_, err := fmt.Scan(&rep)
-		if err != nil {
-			log.Fatalln("error input")
+		if !scanner.Scan() {
+			break
 		}
+		args := strings.Fields(scanner.Text())
+		if len(args) == 0 {
+			continue
+		}
+		rep := args[0]
+		argument := ""
+		if len(args) > 1 {
+			argument = args[1]
+		}
+		// command section
 		if rep == "exit" {
 			break
 		}
@@ -44,11 +53,25 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			if err := sql.AddUsersAnime("Wistoria", "admin"); err != nil {
+			if argument == "" {
+				fmt.Println("No argument")
+				continue
+			}
+			if err := sql.AddUsersAnime("Wistoria", argument); err != nil {
 				fmt.Printf("Error AddUserAnime: %v\n", err)
 			}
-			if err := sql.GetAnimeUserInfo("admin"); err != nil {
+			if err := sql.GetAnimeUserInfo(argument); err != nil {
 				fmt.Printf("Error SQL: %v\n", err)
+			}
+			continue
+		}
+		if rep == "test_user" {
+			if argument == "" {
+				fmt.Println("No argument")
+				continue
+			}
+			if err := sql.GetAnimeUserInfo(argument); err != nil {
+				fmt.Println("ERROR : ", err)
 			}
 			continue
 		}
@@ -66,12 +89,15 @@ func main() {
 			continue
 		}
 		if rep == "cd" {
-			_, err := fmt.Scan(&path)
-			if err != nil {
-				log.Fatalln("error cd")
+			if argument == "" {
+				fmt.Println("No argument")
+				continue
 			}
-			os.Chdir(path)
-			cfg.Path, err = os.Getwd()
+			if err := os.Chdir(argument); err != nil {
+				fmt.Printf("error cd: %v\n", err)
+				continue
+			}
+			cfg.Path, _ = os.Getwd()
 			fmt.Printf("DEBUG CD : %v\n", cfg.Path)
 			continue
 		}
@@ -81,5 +107,9 @@ func main() {
 			continue
 		}
 		fmt.Println("Command not found.")
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "error input: %v\n", err)
 	}
 }
