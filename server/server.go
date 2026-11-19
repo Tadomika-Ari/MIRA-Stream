@@ -34,7 +34,7 @@ func ServerStart() Conf {
 	if err != nil {
 		log.Fatalf("error with create database")
 	}
-	err = sql.AddBibloInfoSQL()
+	err = sql.AddBibloInfoSQL(cfg)
 	if err != nil {
 		log.Fatalf("error add biblio in database")
 	}
@@ -42,6 +42,10 @@ func ServerStart() Conf {
 		err = sql.InitUsersSQL(user.Name, user.Name, user.Description, user.PP, user.NSFW)
 		if err != nil {
 			log.Fatalf("Error with add first user")
+		}
+		err = sql.InitAnimeUser(user.Name)
+		if err != nil {
+			log.Fatalf("Error with init animeUser")
 		}
 	}
 	fmt.Println("Serveur Pret")
