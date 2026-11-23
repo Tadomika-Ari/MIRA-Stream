@@ -28,7 +28,6 @@ func RequestUserAnime(cfg srv.Conf) {
 
 					favoriteList, err := sql.GetFavoriteAnimeUser(username)
 					if err != nil {
-						w.WriteHeader(http.StatusInternalServerError)
 						return
 					}
 
@@ -41,7 +40,7 @@ func RequestUserAnime(cfg srv.Conf) {
 					w.Write([]byte("Méthode non autorisée"))
 				}
 				Now := time.Now()
-				fmt.Printf("LOG: Demand Bibliotheque %d:%d\n", Now.Hour(), Now.Minute())
+				fmt.Printf("LOG: Demand Favorite Anime User %d:%d\n", Now.Hour(), Now.Minute())
 		}
 		http.NotFound(w, r)
 	})

@@ -19,6 +19,9 @@ func SimpleHost(cfg srv.Conf) {
 	RequestAddUser(cfg)
 	RequestPPUser(cfg)
 	RequestUser(cfg)
+	RequestUserAnime(cfg)
+	RequestAddFavoriteAnime(cfg)
+	RequestDeleteFavoriteAnime(cfg)
 
 	fmt.Println("API lancer")
 	port = ":" + fmt.Sprintf("%d", cfg.Server.Port)
