@@ -9,11 +9,11 @@ import (
 )
 
 type RequestFavoriteAnimeUser struct {
-	userid int
-	animeid int
-	favorite bool
-	status string
-	timestamp int
+	Userid    int    `json:"userid"`
+	Animeid   int    `json:"animeid"`
+	Favorite  bool   `json:"favorite"`
+	Status    string `json:"status"`
+	Timestamp int    `json:"timestamp"`
 }
 
 func GetFavoriteAnimeUser(name string) ([]RequestFavoriteAnimeUser, error) {
@@ -51,7 +51,11 @@ func GetFavoriteAnimeUser(name string) ([]RequestFavoriteAnimeUser, error) {
 			return nil, rows.Err()
 		}
 		rows.Scan(&userid, &animeid, &favorite, &status, &timestamp)
-		tmp.userid = userid; tmp.animeid = animeid; tmp.favorite = favorite; tmp.status = status; tmp.timestamp = timestamp
+		tmp.Userid = userid
+		tmp.Animeid = animeid
+		tmp.Favorite = favorite
+		tmp.Status = status
+		tmp.Timestamp = timestamp
 		request = append(request, tmp)
 		fmt.Println(userid, animeid, favorite, status, timestamp)
 	}

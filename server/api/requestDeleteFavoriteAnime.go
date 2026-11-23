@@ -22,18 +22,21 @@ func RequestDeleteFavoriteAnime(cfg srv.Conf) {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+		fmt.Println("DEBUG")
 		switch r.Method {
 			case http.MethodPost:
 				var request RequestDeleteAnime
-				err := json.NewDecoder(r.Body).Decode(&request)
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
+				if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
 				}
 				fmt.Println(request.Account, request.AnimeName)
-				err = sql.DeleteFavoriteAnime(request.AnimeName, request.Account)
-				if err != nil {
+				if err := sql.DeleteFavoriteAnime(request.AnimeName, request.Account); err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprintf(w, "Erreur favori: %v", err)
+					return
 				}
+				w.WriteHeader(http.StatusOK)
 			default:
 				w.WriteHeader(http.StatusMethodNotAllowed)
 				w.Write([]byte("Méthode non autorisée"))

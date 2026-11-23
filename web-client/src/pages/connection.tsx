@@ -6,18 +6,37 @@ import UserMenu from '../components/UserMenu'
 import UserSelection from '../components/UserSelection'
 import type { UserProfile } from '../components/UserSelection'
 import { getApiBase } from '../lib/api'
-
+ 
+type AnimeUserRequest = {
+  animeName: string,
+  account: string
+};
+ 
+type ReceiveAnimeUser = {
+  userid: number,
+  animeid: number,
+  favorite: boolean,
+  status: string,
+  timestamp: number
+}
+ 
 export default function LoginPage() {
   const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBiblio, setSelectedBiblio] = useState(null)
   const [biblioInfos, setBiblioInfos] = useState({})
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([])
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
   const navigate = useNavigate()
-
+ 
+  const favoriteNames = useMemo(
+    () => biblioItems.filter((item) => favoriteIds.includes(item.id)).map((item) => item.name),
+    [biblioItems, favoriteIds],
+  )
+ 
   const loadBiblio = async () => {
     try {
       setLoading(true)
@@ -34,9 +53,9 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
-
+ 
   const [running, setRunning] = useState<boolean | null>(null)
-
+ 
   const getHealth = async () => {
     try {
       const response = await fetch(`${getApiBase()}/api/health`)
@@ -48,19 +67,22 @@ export default function LoginPage() {
       setRunning(false)
     }
   }
-
+ 
   useEffect(() => {
-    if (selectedUser) loadBiblio()
+    if (selectedUser) {
+      loadBiblio()
+      loadFavoriteAnime()
+    }
   }, [selectedUser])
-
+ 
   useEffect(() => {
     if (!selectedUser) return
-  
+ 
     getHealth()
     const id = setInterval(getHealth, 5000)
     return () => clearInterval(id)
   }, [selectedUser])
-
+ 
   useEffect(() => {
     biblioItems.forEach(async (item) => {
       try {
@@ -75,21 +97,77 @@ export default function LoginPage() {
       }
     })
   }, [biblioItems])
-
+ 
   const filteredItems = useMemo(() => biblioItems.filter((item) => {
     const matchesQuery = (item.name ?? '').toLowerCase().includes(query.toLowerCase())
     if (filter === 'complete') return matchesQuery && (item.nbseason ?? 0) > 0
     if (filter === 'new') return matchesQuery && biblioItems.indexOf(item) < 4
     return matchesQuery
   }), [biblioItems, filter, query])
-
+ 
+  const favoriteItems = useMemo(() => biblioItems.filter((item) => favoriteNames.includes(item.name)), [biblioItems, favoriteNames])
+ 
   const featured = biblioItems[0]
   const featuredImage = featured && biblioInfos[featured.name]
-
+ 
+  const loadFavoriteAnime = async () => {
+    try {
+      const response = await fetch(`${getApiBase()}/api/user/favorite/${encodeURIComponent(selectedUser.name)}`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data: ReceiveAnimeUser[] = await response.json()
+      setFavoriteIds(data.filter((entry) => entry.favorite).map((entry) => entry.animeid))
+    } catch (requestError) {
+      console.error('Cannot load favorite anime', requestError)
+    }
+  }
+ 
+  const addFavoriteAnime = async (animeName) => {
+    try {
+      const request: AnimeUserRequest = { account: selectedUser.name, animeName }
+      const response = await fetch(`${getApiBase()}/api/user/favorite/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      })
+      return response.ok
+    } catch (requestError) {
+      console.error('Cannot add favorite anime', requestError)
+      return false
+    }
+  }
+ 
+  const removeFavoriteAnime = async (animeName) => {
+    try {
+      const request: AnimeUserRequest = { account: selectedUser.name, animeName }
+      const response = await fetch(`${getApiBase()}/api/user/favorite/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      })
+      return response.ok
+    } catch (requestError) {
+      console.error('Cannot remove favorite anime', requestError)
+      return false
+    }
+  }
+ 
+  const toggleFavoriteAnime = async (animeName) => {
+    const item = biblioItems.find((i) => i.name === animeName)
+    if (!item) return
+    const isFavorite = favoriteIds.includes(item.id)
+    const ok = isFavorite
+      ? await removeFavoriteAnime(animeName)
+      : await addFavoriteAnime(animeName)
+    if (!ok) return
+    setFavoriteIds((previous) =>
+      isFavorite ? previous.filter((id) => id !== item.id) : [...previous, item.id],
+    )
+  }
+ 
   if (!selectedUser) {
     return <UserSelection onSelect={setSelectedUser} />
   }
-
+ 
   return (
     <div className="mira-page-in flex min-h-screen bg-[#080a12] font-['DM_Sans'] text-[#f6f3ed]">
       <aside className="flex w-[238px] flex-none flex-col border-r border-white/[.07] bg-[#0c0e17] px-[18px] pb-6 pt-[30px] max-[700px]:hidden">
@@ -106,10 +184,80 @@ export default function LoginPage() {
         <header className="flex h-[86px] items-center justify-end gap-[18px] border-b border-white/[.05] px-[clamp(22px,5vw,70px)] max-[700px]:h-[72px] max-[700px]:justify-between max-[700px]:px-[18px]"><div className="hidden flex-col font-['Space_Grotesk'] text-[13px] font-bold leading-[1.1] tracking-[.1em] text-white max-[700px]:flex">MIRA<span className="mt-1 text-[8px] tracking-[.3em] text-[#ffba62]">STREAM</span></div><label className="flex h-[38px] w-[min(380px,55vw)] items-center gap-2.5 rounded-[7px] border border-[#252a39] bg-[#111521] px-[13px] text-[#777d90] max-[700px]:max-w-[250px] max-[700px]:flex-1"><span>⌕</span><input className="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#eee] outline-0" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher dans votre bibliothèque" aria-label="Rechercher" />{query && <button className="border-0 bg-transparent text-xl text-[#9da2b1]" type="button" onClick={() => setQuery('')} aria-label="Effacer la recherche">×</button>}</label><UserMenu name={selectedUser.name} image={selectedUser.pp} onChangeUser={() => setSelectedUser(null)} /></header>
         {loading ? <div className="my-[130px] text-center text-sm text-[#8990a1]"><span className="mr-2 inline-block size-2 rounded-full bg-[#ffb85c]" /> Chargement de votre bibliothèque...</div> : error ? <div className="my-[130px] text-center text-sm text-[#8990a1]">{error}<button className="ml-3 rounded border border-[#495063] px-3 py-1" type="button" onClick={loadBiblio}>Réessayer</button></div> : <>
           {featured && <section className="relative mx-[clamp(22px,5vw,70px)] flex min-h-[438px] items-center border-b border-white/[.06] bg-[#111521] bg-cover bg-right bg-no-repeat max-[700px]:mx-0 max-[700px]:min-h-[390px] max-[700px]:bg-cover max-[700px]:bg-center max-[700px]:px-[22px]" style={featuredImage ? { backgroundImage: `linear-gradient(90deg, #080a12 8%, rgba(8,10,18,.75) 42%, rgba(8,10,18,.1)), url(${featuredImage})` } : {}}><div className="max-w-[470px] py-[62px] max-[700px]:relative max-[700px]:z-[1] max-[700px]:py-[35px]"><p className="mb-3.5 font-['Space_Grotesk'] text-[10px] font-bold tracking-[.2em] text-[#ffb85c]">À LA UNE · VOTRE SERVEUR</p><h1 className="m-0 max-w-[500px] font-['Space_Grotesk'] text-[clamp(38px,5vw,66px)] font-bold leading-[.98] tracking-[-.03em] text-white max-[700px]:text-[42px]">{featured.name}</h1><p className="mt-[22px] text-sm text-[#c3c6d0]">Série · {featured.totalseason || 0} saison{featured.totalseason > 1 ? 's' : ''} · {featured.nbseason || 0} épisodes</p><p className="max-w-[365px] text-[13px] leading-[1.7] text-[#878d9f]">Retrouvez votre collection, saison après saison, dans une expérience pensée pour le grand écran.</p><button className="mt-[13px] rounded-[6px] border-0 bg-[#ffb85c] px-[17px] py-3 font-bold text-[#1b1208] hover:bg-[#ffd18e]" type="button" onClick={() => setSelectedBiblio(featured)}><span className="mr-2">▶</span> Ouvrir la fiche</button></div></section>}
-          <section className="px-[clamp(22px,5vw,70px)] pb-[70px] pt-[46px] max-[700px]:px-[18px] max-[700px]:pb-[50px] max-[700px]:pt-[35px]" id="library"><div className="flex items-end justify-between"><div><p className="mb-3.5 font-['Space_Grotesk'] text-[10px] font-bold tracking-[.2em] text-[#ffb85c]">COLLECTION LOCALE</p><h2 className="m-0 font-['Space_Grotesk'] text-[27px] font-semibold text-white max-[700px]:text-[23px]">Votre bibliothèque</h2></div><span className="text-xs text-[#73798b]">{filteredItems.length} titre{filteredItems.length > 1 ? 's' : ''}</span></div><div className="my-[25px] flex gap-[22px] overflow-x-auto whitespace-nowrap border-b border-[#202433]" role="tablist" aria-label="Filtrer la bibliothèque">{[['all', 'Tout voir'], ['complete', 'Séries suivies'], ['new', 'Ajouts récents']].map(([value, label]) => <button key={value} className={filter === value ? 'border-0 border-b-2 border-[#ffb85c] bg-transparent px-0 pb-[11px] text-xs text-white' : 'border-0 border-b-2 border-transparent bg-transparent px-0 pb-[11px] text-xs text-[#777d8e]'} onClick={() => setFilter(value)} type="button" role="tab" aria-selected={filter === value}>{label}</button>)}</div>{filteredItems.length === 0 ? <div className="my-[130px] text-center text-sm text-[#8990a1]">Aucun titre ne correspond à votre recherche.</div> : <div className="grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-x-4 gap-y-6 max-[700px]:grid-cols-2 max-[700px]:gap-x-[13px]">{filteredItems.map((item) => <button className="cursor-pointer border-0 bg-transparent p-0 text-left text-white" onClick={() => setSelectedBiblio(item)} key={item.name} type="button"><div className="group relative grid aspect-[2/3] place-items-center overflow-hidden rounded-[6px] bg-[linear-gradient(145deg,#262b3b,#111521)] bg-cover bg-center transition duration-200 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,.35)]" style={biblioInfos[item.name] ? { backgroundImage: `linear-gradient(0deg, rgba(5,7,12,.92), transparent 60%), url(${biblioInfos[item.name]})` } : {}}><span className="font-['Space_Grotesk'] text-[64px] font-bold text-white/25">{item.name?.charAt(0)}</span><span className="absolute bottom-2.5 right-2.5 grid size-[29px] place-items-center rounded-full bg-[#ffbd68] text-[11px] text-[#16120d] opacity-0 transition group-hover:opacity-100">▶</span></div><div className="pt-2.5"><strong className="block overflow-hidden text-[13px] text-[#f4f2ef] text-ellipsis whitespace-nowrap">{item.name}</strong><span className="text-[11px] text-[#777d8e]">{item.totalseason || 0} saison{item.totalseason > 1 ? 's' : ''} · {item.nbseason || 0} épisodes</span></div></button>)}</div>}</section>
+          <section className="px-[clamp(22px,5vw,70px)] pt-[46px] max-[700px]:px-[18px] max-[700px]:pt-[35px]" id="favorites">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="mb-3.5 font-['Space_Grotesk'] text-[10px] font-bold tracking-[.2em] text-[#ffb85c]">VOS COUPS DE CŒUR</p>
+                <h2 className="m-0 font-['Space_Grotesk'] text-[27px] font-semibold text-white max-[700px]:text-[23px]">Animés favoris</h2>
+              </div>
+              <span className="text-xs text-[#73798b]">{favoriteItems.length} titre{favoriteItems.length > 1 ? 's' : ''}</span>
+            </div>
+            {favoriteItems.length === 0 ? (
+              <div className="mt-5 rounded-[8px] border border-dashed border-[#252a39] py-10 text-center text-sm text-[#8990a1]">Cliquez sur un cœur pour ajouter un animé à vos favoris.</div>
+            ) : (
+              <div className="mt-[25px] grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-x-4 gap-y-6 max-[700px]:grid-cols-2 max-[700px]:gap-x-[13px]">
+                {favoriteItems.map((item) => (
+                  <div className="relative text-left text-white" key={item.name}>
+                    <button className="block aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-[6px] border-0 bg-[linear-gradient(145deg,#262b3b,#111521)] bg-cover bg-center p-0 transition duration-200 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,.35)]" onClick={() => setSelectedBiblio(item)} style={biblioInfos[item.name] ? { backgroundImage: `linear-gradient(0deg, rgba(5,7,12,.92), transparent 60%), url(${biblioInfos[item.name]})` } : {}} type="button" aria-label={`Ouvrir ${item.name}`}>
+                      {!biblioInfos[item.name] && <span className="font-['Space_Grotesk'] text-[64px] font-bold text-white/25">{item.name?.charAt(0)}</span>}
+                    </button>
+                    <button className="absolute right-2.5 top-2.5 grid size-9 cursor-pointer place-items-center rounded-full border border-white/10 bg-[#111521]/90 text-[20px] leading-none text-[#ffb85c] shadow-[0_6px_18px_rgba(0,0,0,.35)] transition hover:scale-110" onClick={() => toggleFavoriteAnime(item.name)} type="button" aria-label={`Retirer ${item.name} des favoris`} title="Retirer des favoris">♥</button>
+                    <button className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left text-white" onClick={() => setSelectedBiblio(item)} type="button">
+                      <strong className="block overflow-hidden pt-2.5 text-[13px] text-[#f4f2ef] text-ellipsis whitespace-nowrap">{item.name}</strong>
+                      <span className="text-[11px] text-[#777d8e]">{item.totalseason || 0} saison{item.totalseason > 1 ? 's' : ''} · {item.nbseason || 0} épisodes</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+          <section className="px-[clamp(22px,5vw,70px)] pb-[70px] pt-[46px] max-[700px]:px-[18px] max-[700px]:pb-[50px] max-[700px]:pt-[35px]" id="library">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="mb-3.5 font-['Space_Grotesk'] text-[10px] font-bold tracking-[.2em] text-[#ffb85c]">COLLECTION LOCALE</p>
+                <h2 className="m-0 font-['Space_Grotesk'] text-[27px] font-semibold text-white max-[700px]:text-[23px]">Votre bibliothèque</h2>
+              </div>
+              <span className="text-xs text-[#73798b]">{filteredItems.length} titre{filteredItems.length > 1 ? 's' : ''}</span>
+            </div>
+            <div className="my-[25px] flex gap-[22px] overflow-x-auto whitespace-nowrap border-b border-[#202433]" role="tablist" aria-label="Filtrer la bibliothèque">{[['all', 'Tout voir'], ['complete', 'Séries suivies'], ['new', 'Ajouts récents']].map(([value, label]) => <button key={value} className={filter === value ? 'border-0 border-b-2 border-[#ffb85c] bg-transparent px-0 pb-[11px] text-xs text-white' : 'border-0 border-b-2 border-transparent bg-transparent px-0 pb-[11px] text-xs text-[#777d8e]'} onClick={() => setFilter(value)} type="button" role="tab" aria-selected={filter === value}>{label}</button>)}</div>
+            {filteredItems.length === 0 ? (
+              <div className="my-[130px] text-center text-sm text-[#8990a1]">Aucun titre ne correspond à votre recherche.</div>
+            ) : (
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-x-4 gap-y-6 max-[700px]:grid-cols-2 max-[700px]:gap-x-[13px]">
+                {filteredItems.map((item) => {
+                  const isFavorite = favoriteNames.includes(item.name)
+                  return (
+                    <div className="relative" key={item.name}>
+                      <button className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left text-white" onClick={() => setSelectedBiblio(item)} type="button">
+                        <div className="group relative grid aspect-[2/3] place-items-center overflow-hidden rounded-[6px] bg-[linear-gradient(145deg,#262b3b,#111521)] bg-cover bg-center transition duration-200 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(0,0,0,.35)]" style={biblioInfos[item.name] ? { backgroundImage: `linear-gradient(0deg, rgba(5,7,12,.92), transparent 60%), url(${biblioInfos[item.name]})` } : {}}>
+                          <span className="font-['Space_Grotesk'] text-[64px] font-bold text-white/25">{item.name?.charAt(0)}</span>
+                          <span className="absolute bottom-2.5 right-2.5 grid size-[29px] place-items-center rounded-full bg-[#ffbd68] text-[11px] text-[#16120d] opacity-0 transition group-hover:opacity-100">▶</span>
+                        </div>
+                        <div className="pt-2.5">
+                          <strong className="block overflow-hidden text-[13px] text-[#f4f2ef] text-ellipsis whitespace-nowrap">{item.name}</strong>
+                          <span className="text-[11px] text-[#777d8e]">{item.totalseason || 0} saison{item.totalseason > 1 ? 's' : ''} · {item.nbseason || 0} épisodes</span>
+                        </div>
+                      </button>
+                      <button
+                        className={`absolute right-2.5 top-2.5 grid size-9 cursor-pointer place-items-center rounded-full border border-white/10 bg-[#111521]/90 text-[20px] leading-none shadow-[0_6px_18px_rgba(0,0,0,.35)] transition hover:scale-110 ${isFavorite ? 'text-[#ffb85c]' : 'text-white/60'}`}
+                        onClick={() => toggleFavoriteAnime(item.name)}
+                        type="button"
+                        aria-pressed={isFavorite}
+                        aria-label={isFavorite ? `Retirer ${item.name} des favoris` : `Ajouter ${item.name} aux favoris`}
+                        title={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                      >
+                        {isFavorite ? '♥' : '♡'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
         </>}
       </main>
       <BiblioDrawer biblio={selectedBiblio} open={Boolean(selectedBiblio)} onClose={() => setSelectedBiblio(null)} onPlayEpisode={(episodePath) => navigate(`/player/${encodeURIComponent(episodePath)}`)} />
     </div>
   )
 }
+ 

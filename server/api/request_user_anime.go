@@ -17,6 +17,7 @@ func RequestUserAnime(cfg srv.Conf) {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+		fmt.Println("DEBUG")
 		username := r.PathValue("username")
 		for _, user := range cfg.Management.Users {
 			if user.Name != username {
@@ -25,12 +26,10 @@ func RequestUserAnime(cfg srv.Conf) {
 			switch r.Method {
 				case http.MethodGet:
 					w.Header().Set("Content-Type", "application/json")
-
 					favoriteList, err := sql.GetFavoriteAnimeUser(username)
 					if err != nil {
 						return
 					}
-
 					if err := json.NewEncoder(w).Encode(favoriteList); err != nil {
 						w.WriteHeader(http.StatusInternalServerError)
 						fmt.Fprintln(w, "Erreur d'encodage JSON")
@@ -41,6 +40,7 @@ func RequestUserAnime(cfg srv.Conf) {
 				}
 				Now := time.Now()
 				fmt.Printf("LOG: Demand Favorite Anime User %d:%d\n", Now.Hour(), Now.Minute())
+				return
 		}
 		http.NotFound(w, r)
 	})
