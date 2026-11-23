@@ -34,6 +34,10 @@ func main() {
 		if rep == "exit" {
 			break
 		}
+		if rep == "help" {
+			cmd.Help()
+			continue
+		}
 		if rep == "vfolder" {
 			cmd.ChangeVFolder(&cfg)
 			fmt.Printf("After change : %+v\n", cfg)
@@ -53,19 +57,9 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			if argument == "" {
-				fmt.Println("No argument")
-				continue
-			}
-			if err := sql.AddUsersAnime("Wistoria", argument); err != nil {
-				fmt.Printf("Error AddUserAnime: %v\n", err)
-			}
-			if err := sql.GetAnimeUserInfo(argument); err != nil {
-				fmt.Printf("Error SQL: %v\n", err)
-			}
 			continue
 		}
-		if rep == "test_user" {
+		if rep == "anime_user" {
 			if argument == "" {
 				fmt.Println("No argument")
 				continue

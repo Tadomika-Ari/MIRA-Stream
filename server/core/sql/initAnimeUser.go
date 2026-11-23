@@ -32,6 +32,10 @@ func GetAnimeList() []string {
 		rows.Scan(&animeName)
 		animeList = append(animeList, animeName)
 	}
+	if err := rows.Err(); err != nil {
+		fmt.Println("ERROR DEBUG 5")
+		return nil
+	}
 	return  animeList
 }
 
@@ -47,7 +51,6 @@ func InitAnimeUser(name string) error {
 	}
 	defer db.Close()
 	userId := GetUserIdName(name)
-
 	animeList := GetAnimeList()
 	for _, animeName := range animeList {
 		animeId := GetAnimeIdName(animeName)
