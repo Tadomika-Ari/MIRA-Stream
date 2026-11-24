@@ -7,6 +7,20 @@ import UserSelection from '../components/UserSelection'
 import type { UserProfile } from '../components/UserSelection'
 import { getApiBase } from '../lib/api'
  
+type AnimeUserRequest = {
+  animeName: string,
+  account: string
+};
+ 
+type ReceiveAnimeUser = {
+  userid: number,
+  animeid: number,
+  animeName: string,
+  favorite: boolean,
+  status: string,
+  timestamp: number
+}
+ 
 export default function LoginPage() {
   const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,7 +32,6 @@ export default function LoginPage() {
   const [filter, setFilter] = useState('all')
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
   const navigate = useNavigate()
- 
   const loadBiblio = async () => {
     try {
       setLoading(true)
@@ -134,15 +147,13 @@ export default function LoginPage() {
   }
  
   const toggleFavoriteAnime = async (animeName) => {
-    const item = biblioItems.find((i) => i.name === animeName)
-    if (!item) return
-    const isFavorite = favoriteNames.includes(item.name)
+    const isFavorite = favoriteNames.includes(animeName)
     const ok = isFavorite
       ? await removeFavoriteAnime(animeName)
       : await addFavoriteAnime(animeName)
     if (!ok) return
     setFavoriteNames((previous) =>
-      isFavorite ? previous.filter((name) => name !== item.name) : [...previous, item.name],
+      isFavorite ? previous.filter((name) => name !== animeName) : [...previous, animeName],
     )
   }
  
@@ -251,3 +262,4 @@ export default function LoginPage() {
     </div>
   )
 }
+ 
