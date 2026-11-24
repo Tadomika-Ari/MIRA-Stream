@@ -106,6 +106,7 @@ export default function LoginPage() {
   const featuredImage = featured && biblioInfos[featured.name]
  
   const loadFavoriteAnime = async () => {
+    setFavoriteNames([])
     try {
       const response = await fetch(`${getApiBase()}/api/user/favorite/${encodeURIComponent(selectedUser.name)}`)
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -113,6 +114,7 @@ export default function LoginPage() {
       setFavoriteNames(data.filter((entry) => entry.favorite).map((entry) => entry.animeName))
     } catch (requestError) {
       console.error('Cannot load favorite anime', requestError)
+      setFavoriteNames([])
     }
   }
  
