@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	core "server/server/core"
-
+	sql "server/server/core/sql"
 	"github.com/BurntSushi/toml"
 )
 
@@ -16,6 +16,9 @@ type Conf = conf
 func LoadConf(path string) (Conf, error) {
 	var cfg conf
 	_, err := toml.DecodeFile(path, &cfg)
+	if err != nil {
+		return cfg, err
+	}
 	cfg.Path, err = os.Getwd()
 	cfg.StartStatut = 0
 	return cfg, err
@@ -27,19 +30,23 @@ func ServerStart() Conf {
 		log.Fatalf("error toml")
 	}
 	fmt.Printf("Debug: %+v\n", cfg)
-	err = core.CreateSQL()
+	err = sql.CreateSQL()
 	if err != nil {
 		log.Fatalf("error with create database")
 	}
-	err = core.AddBibloInfoSQL()
+	err = sql.AddBibloInfoSQL(cfg)
 	if err != nil {
 		log.Fatalf("error add biblio in database")
 	}
 	for _, user := range cfg.Management.Users {
-		err = core.InitUsersSQL(user.Name, user.Name, user.Description, user.PP)
+		err = sql.InitUsersSQL(user.Name, user.Name, user.Description, user.PP, user.NSFW)
 		if err != nil {
 			log.Fatalf("Error with add first user")
-		}	
+		}
+		err = sql.InitAnimeUser(user.Name)
+		if err != nil {
+			log.Fatalf("Error with init animeUser")
+		}
 	}
 	fmt.Println("Serveur Pret")
 	return cfg

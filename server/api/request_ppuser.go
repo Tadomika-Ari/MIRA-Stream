@@ -10,7 +10,6 @@ import (
 func RequestPPUser(cfg srv.Conf) {
 	http.HandleFunc("/api/user/pp/{username}", func(w http.ResponseWriter, r *http.Request) {
 		setCORSHeaders(w, r)
-
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return

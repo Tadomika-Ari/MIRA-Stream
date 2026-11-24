@@ -16,12 +16,10 @@ func RequestFile(cfg srv.Conf) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Range")
 		w.Header().Set("Access-Control-Expose-Headers", "Accept-Ranges, Content-Length, Content-Range")
-
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-
 		filename := r.PathValue("filename")
 		videoPath := filepath.Join(cfg.Path, cfg.Folder.VideoF, filename)
 		Now := time.Now()

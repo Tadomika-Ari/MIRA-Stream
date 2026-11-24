@@ -49,12 +49,10 @@ func itemsHandler(w http.ResponseWriter, r *http.Request, cfg srv.Conf) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-
 	switch r.Method {
 	case http.MethodGet:
 		w.Header().Set("Content-Type", "application/json")
@@ -71,7 +69,7 @@ func itemsHandler(w http.ResponseWriter, r *http.Request, cfg srv.Conf) {
 }
 
 func RequestFolder(cfg srv.Conf) {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/folder", func(w http.ResponseWriter, r *http.Request) {
 		itemsHandler(w, r, cfg)
 	})
 }

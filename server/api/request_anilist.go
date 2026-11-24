@@ -12,15 +12,12 @@ import (
 
 func AnilistHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 	setCORSHeaders(w, r)
-
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-
 	name := r.PathValue("name")
 	info := external.AnilistInfo(name)
-
 	switch r.Method {
 	case http.MethodGet:
 		w.Header().Set("Content-Type", "application/json")
@@ -34,7 +31,6 @@ func AnilistHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 	}
 	Now := time.Now()
 	fmt.Printf("LOG: Demand Bibliotheque %d:%d\n", Now.Hour(), Now.Minute())
-
 }
 
 func RequestAnilist(cfg serv.Conf) {

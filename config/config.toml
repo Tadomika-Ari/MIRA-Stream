@@ -12,7 +12,9 @@ webtoon_f = "test"
 name = "admin"
 description = "profil admin"
 pp = "config/users/tea-girl.png"
+nsfw = true
 [[management.users]]
 name = "toto"
 description = "juste toto"
 pp = "default"
+nsfw = false

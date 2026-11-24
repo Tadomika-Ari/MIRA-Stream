@@ -12,12 +12,10 @@ import (
 
 func LibraryHandler(w http.ResponseWriter, r *http.Request, cfg serv.Conf) {
 	setCORSHeaders(w, r)
-
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-
 	switch r.Method {
 	case http.MethodGet:
 		w.Header().Set("Content-Type", "application/json")
