@@ -7,35 +7,17 @@ import UserSelection from '../components/UserSelection'
 import type { UserProfile } from '../components/UserSelection'
 import { getApiBase } from '../lib/api'
  
-type AnimeUserRequest = {
-  animeName: string,
-  account: string
-};
- 
-type ReceiveAnimeUser = {
-  userid: number,
-  animeid: number,
-  favorite: boolean,
-  status: string,
-  timestamp: number
-}
- 
 export default function LoginPage() {
   const [biblioItems, setBiblioItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBiblio, setSelectedBiblio] = useState(null)
   const [biblioInfos, setBiblioInfos] = useState({})
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([])
+  const [favoriteNames, setFavoriteNames] = useState<string[]>([])
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
   const navigate = useNavigate()
- 
-  const favoriteNames = useMemo(
-    () => biblioItems.filter((item) => favoriteIds.includes(item.id)).map((item) => item.name),
-    [biblioItems, favoriteIds],
-  )
  
   const loadBiblio = async () => {
     try {
@@ -115,7 +97,7 @@ export default function LoginPage() {
       const response = await fetch(`${getApiBase()}/api/user/favorite/${encodeURIComponent(selectedUser.name)}`)
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data: ReceiveAnimeUser[] = await response.json()
-      setFavoriteIds(data.filter((entry) => entry.favorite).map((entry) => entry.animeid))
+      setFavoriteNames(data.filter((entry) => entry.favorite).map((entry) => entry.animeName))
     } catch (requestError) {
       console.error('Cannot load favorite anime', requestError)
     }
@@ -154,13 +136,13 @@ export default function LoginPage() {
   const toggleFavoriteAnime = async (animeName) => {
     const item = biblioItems.find((i) => i.name === animeName)
     if (!item) return
-    const isFavorite = favoriteIds.includes(item.id)
+    const isFavorite = favoriteNames.includes(item.name)
     const ok = isFavorite
       ? await removeFavoriteAnime(animeName)
       : await addFavoriteAnime(animeName)
     if (!ok) return
-    setFavoriteIds((previous) =>
-      isFavorite ? previous.filter((id) => id !== item.id) : [...previous, item.id],
+    setFavoriteNames((previous) =>
+      isFavorite ? previous.filter((name) => name !== item.name) : [...previous, item.name],
     )
   }
  
@@ -269,4 +251,3 @@ export default function LoginPage() {
     </div>
   )
 }
- 
