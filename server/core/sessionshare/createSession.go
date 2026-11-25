@@ -5,6 +5,6 @@ import (
 )
 
 func CreateSession(cfg core.Conf) error {
-	go StartSessionShare(cfg)
+	StartSessionShare(cfg)
 	return nil
 }

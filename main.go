@@ -7,6 +7,7 @@ import (
 	"server/server"
 	"strings"
 	api "server/server/api"
+	sessionshare "server/server/core/sessionshare"
 	sql "server/server/core/sql"
 	cmd "server/server/terminal_cmd"
 )
@@ -57,7 +58,13 @@ func main() {
 			continue
 		}
 		if rep == "test" {
-			continue
+			if cfg.StartStatut == 1 {
+				sessionshare.CreateSession(cfg)
+				continue
+			} else {
+				fmt.Println("Server not start")
+				continue
+			}
 		}
 		if rep == "anime_user" {
 			if argument == "" {
