@@ -5,10 +5,10 @@ import (
 	core "server/server/core"
 )
 
-func CreateSession(cfg core.Conf) error {
+func CreateSession(cfg core.Conf) (string, error) {
 	url, err := StartSessionShare(cfg)
 	if err != nil || url == "" {
-		return errors.New("error with session share")
+		return "", errors.New("error with session share")
 	}
-	return nil
+	return url, nil
 }
