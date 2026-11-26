@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	_ "modernc.org/sqlite"
 )
 type UserConfig struct {
@@ -25,6 +26,11 @@ type conf struct {
 	Management  struct {
 		Users []UserConfig `toml:"users"`
 	} `toml:"management"`
+	SessionShare struct {
+		Ctx	context.Context
+		CancelFunction context.CancelFunc
+		SessionShareUrl string 
+	}
 }
 
 type Conf = conf

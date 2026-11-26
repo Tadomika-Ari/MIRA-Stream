@@ -21,6 +21,9 @@ func LoadConf(path string) (Conf, error) {
 	}
 	cfg.Path, err = os.Getwd()
 	cfg.StartStatut = 0
+	cfg.SessionShare.Ctx = nil
+	cfg.SessionShare.CancelFunction = nil
+	cfg.SessionShare.SessionShareUrl = ""
 	return cfg, err
 }
 

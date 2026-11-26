@@ -6,6 +6,8 @@ import (
 	"os"
 	"server/server"
 	"strings"
+	"context"
+
 	api "server/server/api"
 	sessionshare "server/server/core/sessionshare"
 	sql "server/server/core/sql"
@@ -15,6 +17,7 @@ import (
 func main() {
 	fmt.Println("Démarage du serveur...")
 	cfg := server.ServerStart()
+	cfg.SessionShare.Ctx, cfg.SessionShare.CancelFunction = context.WithCancel(context.Background())
 	fmt.Println("Terminal du serveur :")
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -33,6 +36,7 @@ func main() {
 		}
 		// command section
 		if rep == "exit" {
+			cfg.SessionShare.CancelFunction()
 			break
 		}
 		if rep == "help" {

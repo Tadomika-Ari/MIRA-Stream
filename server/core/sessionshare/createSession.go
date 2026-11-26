@@ -1,10 +1,14 @@
 package sessionshare
 
 import (
+	"errors"
 	core "server/server/core"
 )
 
 func CreateSession(cfg core.Conf) error {
-	StartSessionShare(cfg)
+	url, err := StartSessionShare(cfg)
+	if err != nil || url == "" {
+		return errors.New("error with session share")
+	}
 	return nil
 }
